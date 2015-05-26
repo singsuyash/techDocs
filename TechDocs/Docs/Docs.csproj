@@ -162,6 +162,9 @@
     <Content Include="Content\Images\EF5.png" />
     <Content Include="Content\Images\EF6.png" />
     <Content Include="Content\Images\EF7.png" />
+    <Content Include="Content\Images\email.png" />
+    <Content Include="Content\Images\facebook.png" />
+    <Content Include="Content\Images\twitter.gif" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
