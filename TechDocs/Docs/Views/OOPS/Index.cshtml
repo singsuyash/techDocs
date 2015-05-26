@@ -1,0 +1,185 @@
+﻿@{
+    ViewBag.Title = "OOPs";
+}
+
+<h2>Object Oriented Programming(OOPs)</h2>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="panel-title">Introduction</div>
+    </div>
+    <div class="panel-body">
+        Software components like patterns, architectures, frameworks built need a guide to follow to achieve their goal. This guide includes structures, best practices from a vast history of experience. Often we call it Object Oriented Programming concepts.
+        <table class="table">
+            <thead>
+                <tr class="row">
+                    <td>Terms</td>
+                    <td>Definitions</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="row">
+                    <td>Entity</td>
+                    <td>
+                        An idea, something general, a philosophy, a resource, something significant, that can be given a name.
+                        <pre>hobbit</pre>
+                    </td>
+                </tr>
+                <tr class="row">
+                    <td>Class</td>
+                    <td>
+                        A structure that represents an entity. This structure will contain concrete state and behaviour that an entity can contain and do.
+                        <pre>
+                        <code>
+							   @Html.DisplayCode(@"
+public class Hobbit
+{
+	public String FirstName { get; set; }
+	public String LastName { get; set; }
+	public String Address { get; set; }
+	public void GoOnAdventure()
+	{
+		//go on an adventure
+	}
+}
+", "c#")
+							</code>
+						</pre>
+                    </td>
+                </tr>
+                <tr class="row">
+                    <td>Object</td>
+                    <td>
+                        Object is an instance of a Class.
+                        <pre>
+                        <code>
+                                @Html.DisplayCode(@"
+Hobbit bilbo = new Hobbit();
+Hobbit frodo = new Hobbit();
+", "c#")
+                            </code>
+                        </pre>
+                        Surely we know both bilbo and frodo are different Hobbits. But notice every <code>Hobbit</code> will have a <code>FirstName</code>, <code>LastName</code> and <code>Address</code>, which are different from each other. These are a set of concrete states that define and differentiate <code>Hobbits</code>. Also notice, every <code>Hobbit</code> can go on an adventure. <code>bilbo</code> and <code>frodo</code> went on their own adventures. Notice that initially <code>bilbo</code> and <code>frodo</code> had same <code>Address</code> at bag end, but later <code>bilbo</code> went to rivendale and his <code>Address</code> changed.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        Coming back to OOP, As per a general approach, we need small components of an application that can be <strong>Constructed</strong> as an object, <strong>Re-Used</strong> again in another application, <strong>Assembled</strong> together to make a bigger component and <strong>Essential</strong> because what it does, no other component can do alone. This can be generalized to :
+        <ul>
+            <li>Identifying Classes(so that the objects can be constructed which will do all the work)</li>
+            <li>Separating Responsibilities(so that each object is essential, no overlapping functionalities)</li>
+            <li>Establishing Relationships(to make a bigger component)</li>
+            <li>Leveraging Reuse(by separating responsibilities)</li>
+        </ul>
+        <p>Note, this is an iterative process. It may become a tough task to apply all the above right in the beginning of application design. You may come across different ideas of creating a better class or separating out a common functionality to another class, etc.</p>
+
+        <p>This doc will use C# and Visual Studio.</p>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="panel-title">Identifying Classes from Requirements</div>
+    </div>
+    <div class="panel-body">
+        <p>Softwares are interactive visual outputs of business requirements. These visual outputs provide a way to achieve what a business requires. "Create a Customer Management System" business requirement can have a form that needs to be filled for a new customer, a list of existing customers with there names, address and the products they are subscribed to. etc.</p>
+        <p>These business requirements comes as a specification. A specification can be an email, or a word document or any other readable medium. It can contain a prototype of final required output. For example, the customer form should look like this, this is a product page describing its details. etc. </p>
+        <p>We will start with <strong>Analyzing the Problem</strong>, <strong>Identifying the <em>Name(yes just the name, a noun)</em></strong> of the Entites and <strong>Define appropriate Members(state and behavior <em>Names</em>)</strong></p>
+        <p>
+            Eventually we will cover two of the OOP pillars
+            <ul>
+                <li><strong>Abstraction</strong></li>
+                <li><strong>Encapsulation</strong></li>
+            </ul>
+        </p>
+        Let's get started.
+        <div>
+            Here are the business requirements
+            <p>
+                <pre>
+                 We recently aquired ABC corporation, and we need to create a new Customer Management System. It will be called <strong>LOTR Customer Management System</strong>.
+                </pre>
+                <pre>
+                    It should manage business, residential, government and educator types of customers and should include Customer's name(Last name, first name), Email address, Home and work addresses
+                </pre>
+                <pre>
+                    It should be able to manage both our current products and ABC corporation's products. It should be able to handle the product name, product description, and its price
+</pre>
+                <pre>
+                    Also, it should accept orders from customers either online or through our call center. Collect the customer information, order date, shipping address and products and quantities ordered.
+</pre>
+            </p>
+
+            Time to analyze and extract the Entity(Class) out of the requirements
+            <p>
+                <pre>
+                 We recently aquired ABC corporation, and we need to create a new Customer Management System. It will be called <strong>LOTR Customer Management System</strong>. <strong>This can give our project name, lets say LOTR_CMS</strong>
+                </pre>
+                <pre>
+                    It should manage business, residential, government and educator types of customers and should include Customer's name(Last name, first name), Email address, Home and work addresses. <strong>This talks about <em>Customer</em></strong>
+                </pre>
+                <pre>
+                    It should be able to manage both our current products and ABC corporation's products. It should be able to handle the product name, product description, and its price. <strong>This talks about handling <em>Product</em></strong>
+</pre>
+                <pre>
+                    Also, it should accept orders from customers either online or through our call center. Collect the customer information, order date, shipping address and products and quantities ordered. <strong>This talks about handling an <em>Order</em></strong>
+</pre>
+            </p>
+
+            We could have identified more classes, or omitted some classes. This could be the iterative process we talked about, manage the need of creation, refactoring, or omitting classes. Below is what we found out as yet.
+            <table class="table">
+                <thead>
+                    <tr class="row">
+                        <td>
+                            <table class="table">
+                                <tr class="row"><td><strong>Customer</strong></td></tr>
+                                <tr class="row"><td>Name</td>
+                                <tr>
+                                <tr class="row"><td>Email Address</td></tr>
+                                <tr class="row"><td>Home Address</td></tr>
+                                <tr class="row"><td>Work Address</td></tr>
+                            </table>
+                        </td>
+                        <td>
+                            <table class="table">
+                                <tr class="row"><td><strong>Product</strong></td>
+                                <tr class="row">
+                                    <td>Product Name</td>
+                                </tr>
+                                <tr class="row">
+                                    <td>Description</td>
+                                </tr>
+                                <tr class="row">
+                                    <td>Current Price</td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td>
+                            <table class="table">
+                                <tr class="row">
+                                    <td><strong>Order</strong></td>
+                                </tr>
+                                <tr class="row">
+                                    <td>Customer</td>
+                                </tr>
+                                <tr class="row">
+                                    <td>Order date</td>
+                                </tr>
+                                <tr class="row">
+                                    <td>Shipping Address</td>
+                                </tr>
+                                <tr class="row">
+                                    <td>Product</td>
+                                </tr>
+                                <tr class="row">
+                                    <td>Quantity</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </thead>
+            </table>
+
+        </div>
+    </div>
+</div>

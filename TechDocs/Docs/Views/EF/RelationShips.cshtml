@@ -1,0 +1,661 @@
+﻿@{
+    ViewBag.Title = "Relationships";
+}
+
+<h2>Relationships</h2>
+
+We are using Code First. Below are the set of initial classes
+@Html.DisplayCode(@"
+using System.Collections.Generic;
+
+namespace DataLayer
+{
+    public class Blog
+    {
+        public int BlogKey { get; set; }
+        public string Title { get; set; }
+        public string BloggerName { get; set; }
+        public Post Post { get; set; }
+    }
+}
+
+using System;
+
+namespace DataLayer
+{
+    public class Post
+    {
+        public int PostKey { get; set; }
+        public string Title { get; set; }
+        public DateTime DateCreated { get; set; }
+        public string Content { get; set; }
+        public Blog Blog { get; set; }
+    }
+}
+
+using System.Data.Entity.ModelConfiguration;
+
+namespace DataLayer
+{
+    public class BlogConfiguration : EntityTypeConfiguration<Blog>
+    {
+        public BlogConfiguration()
+        {
+            ToTable(""Blog"", ""dbo"");
+            HasKey(k => k.BlogKey);
+        }
+    }
+
+    public class PostConfiguration : EntityTypeConfiguration<post>
+    {
+        public PostConfiguration()
+        {
+            ToTable(""Post"", ""dbo"");
+            HasKey(k => k.PostKey);
+        }
+    }
+}
+
+", "c#")
+
+<p>On Trying to insert a row in Blog table it threw an error saying <code>@Html.Raw(Html.Encode("Unable to determine the principal end of an association between the types 'DataLayer.Post' and 'DataLayer.Blog'. The principal end of this association must be explicitly configured using either the relationship fluent API or data annotations."))</code></p>
+
+<p>
+    This brings us to what do we mean by <em><strong>Principal</strong></em> &amp; <em><strong>Dependent</strong></em> ends of an association.
+    Now as per <a href="http://stackoverflow.com/questions/6531671/what-does-principal-end-of-an-association-means-in-11-relationship-in-entity-fr">this Stack Overflow question</a> we come to an understanding that <em><strong>In a 1-1 relation one end must be principal and second end must be dependent. Principal end is the one which will be inserted first and which can exist without the dependent one. Dependent end is the one which must be inserted after the principal because it has a foreign key to the principal</strong></em>
+</p>
+
+<p>
+    <pre>
+Many refers to *, Required refers to 1, Optional refers to 0..1(zero or one)
+</pre>
+</p>
+
+<p>List of relationships</p>
+
+<table class="table">
+    <tr class="row">
+        <td>HasMany()</td>
+        <td>WithMany()</td>
+        <td>Map()</td>
+        <td></td>
+    </tr>
+    <tr class="row">
+        <td>HasMany()</td>
+        <td>WithMany()</td>
+        <td>MapToStoredProcedures()</td>
+        <td></td>
+    </tr>
+    <tr class="row">
+        <td>HasMany()</td>
+        <td>WithOptional()</td>
+        <td>HasForeignKey()</td>
+        <td>WillCascadeOnDelete</td>
+    </tr>
+    <tr class="row">
+        <td>HasMany()</td>
+        <td>WithOptional()</td>
+        <td>Map()</td>
+        <td>WillCascadeOnDelete</td>
+    </tr>
+    <tr class="row">
+        <td>HasMany()</td>
+        <td>WithOptional()</td>
+        <td>WillCascadeOnDelete</td>
+    </tr>
+    <tr class="row">
+        <td>HasMany()</td>
+        <td>WithRequired()</td>
+        <td>HasForeignKey()</td>
+        <td>WillCascadeOnDelete</td>
+    </tr>
+    <tr class="row">
+        <td>HasMany()</td>
+        <td>WithRequired()</td>
+        <td>Map()</td>
+        <td>WillCascadeOnDelete</td>
+    </tr>
+    <tr class="row">
+        <td>HasMany()</td>
+        <td>WithRequired()</td>
+        <td>WillCascadeOnDelete</td>
+    </tr>
+</table>
+
+<table class="table">
+    <tr class="row">
+        <td>HasOptional()</td>
+        <td>WithMany()</td>
+        <td>HasForeignKey()</td>
+        <td>WillCascadeOnDelete()</td>
+    </tr>
+    <tr class="row">
+        <td>HasOptional()</td>
+        <td>WithMany()</td>
+        <td>Map()</td>
+        <td>WillCascadeOnDelete()</td>
+    </tr>
+    <tr class="row">
+        <td>HasOptional()</td>
+        <td>WithMany()</td>
+        <td>WillCascadeOnDelete()</td>
+    </tr>
+    <tr class="row">
+        <td>HasOptional()</td>
+        <td>WithOptionalDependent()</td>
+        <td>Map()</td>
+        <td>WillCascadeOnDelete()</td>
+    </tr>
+    <tr class="row">
+        <td>HasOptional()</td>
+        <td>WithOptionalDependent()</td>
+        <td>WillCascadeOnDelete()</td>
+    </tr>
+    <tr class="row">
+        <td>HasOptional()</td>
+        <td>WithOptionalPrincipal()</td>
+        <td>Map()</td>
+        <td>WillCascadeOnDelete()</td>
+    </tr>
+    <tr class="row">
+        <td>HasOptional()</td>
+        <td>WithOptionalPrincipal()</td>
+        <td>WillCascadeOnDelete()</td>
+    </tr>
+    <tr class="row">
+        <td>HasOptional()</td>
+        <td>WithRequired()</td>
+        <td>Map()</td>
+        <td>WillCascadeOnDelete()</td>
+    </tr>
+    <tr class="row">
+        <td>HasOptional()</td>
+        <td>WithRequired()</td>
+        <td>WillCascadeOnDelete()</td>
+    </tr>
+</table>
+
+<table class="table">
+    <tr class="row">
+        <td>HasRequired()</td>
+        <td>WithMany()</td>
+        <td>HasForeignKey()</td>
+        <td>WillCascadeOnDelete()</td>
+    </tr>
+    <tr class="row">
+        <td>HasRequired()</td>
+        <td>WithMany()</td>
+        <td>Map()</td>
+        <td>WillCascadeOnDelete()</td>
+    </tr>
+    <tr class="row">
+        <td>HasRequired()</td>
+        <td>WithMany()</td>
+        <td>WillCascadeOnDelete()</td>
+    </tr>
+    <tr class="row">
+        <td>HasRequired()</td>
+        <td>WithOptional()</td>
+        <td>Map()</td>
+        <td>WillCascadeOnDelete()</td>
+    </tr>
+    <tr class="row">
+        <td>HasRequired()</td>
+        <td>WithOptional()</td>
+        <td>WillCascadeOnDelete()</td>
+    </tr>
+    <tr class="row">
+        <td>HasRequired()</td>
+        <td>WithRequiredPrincipal()</td>
+        <td>Map()</td>
+        <td>WillCascadeOnDelete()</td>
+    </tr>
+    <tr class="row">
+        <td>HasRequired()</td>
+        <td>WithRequiredPrincipal()</td>
+        <td>WillCascadeOnDelete()</td>
+    </tr>
+    <tr class="row">
+        <td>HasRequired()</td>
+        <td>WithRequiredDependent()</td>
+        <td>Map()</td>
+        <td>WillCascadeOnDelete()</td>
+    </tr>
+    <tr class="row">
+        <td>HasRequired()</td>
+        <td>WithRequiredDependent()</td>
+        <td>WillCascadeOnDelete()</td>
+    </tr>
+</table>
+
+<ol>
+    <li>
+        <code>HasMany().WithMany()</code> a blog can have many posts, a post can come from many blogs
+        <div>
+            ways to write
+            <ul>
+                <li><code>HasMany().WithMany()</code></li>
+            </ul>
+        </div>
+        @Html.DisplayCode(@"
+using System.Collections.Generic;
+
+namespace DataLayer
+{
+    public class Blog
+    {
+        public int BlogKey { get; set; }
+        public string Title { get; set; }
+        public string BloggerName { get; set; }
+
+        //Navigational Property
+        public virtual ICollection<Post> Posts { get; set; }
+    }
+}
+
+using System;
+using System.Collections.Generic;
+
+namespace DataLayer
+{
+    public class Post
+    {
+        public int PostKey { get; set; }
+        public string Title { get; set; }
+        public DateTime DateCreated { get; set; }
+        public string Content { get; set; }
+
+        //Navigational Property
+        public virtual ICollection<Blog> Blogs { get; set; }
+    }
+}
+
+using System.Data.Entity.ModelConfiguration;
+
+namespace DataLayer
+{
+    public class BlogConfiguration : EntityTypeConfiguration<Blog>
+    {
+        public BlogConfiguration()
+        {
+            ToTable(""Blog"", ""dbo"");
+            HasKey(k => k.BlogKey);
+            HasMany(p => p.Posts).WithMany(p => p.Blogs);
+        }
+    }
+
+    public class PostConfiguration : EntityTypeConfiguration<post>
+    {
+        public PostConfiguration()
+        {
+            ToTable(""Post"", ""dbo"");
+            HasKey(k => k.PostKey);
+        }
+    }
+ }
+
+
+", "c#")
+        <div><img src="~/Content/Images/EF1.png" /></div>
+        <br />
+        <div>To have the mapping in another table and with a different column names use <code>HasMany().WithMany().Map()</code></div>
+        <div>Updating the Configuration</div>
+        @Html.DisplayCode(@"
+using System.Data.Entity.ModelConfiguration;
+
+namespace DataLayer
+{
+    public class BlogConfiguration : EntityTypeConfiguration<Blog>
+    {
+        public BlogConfiguration()
+        {
+            ToTable(""Blog"", ""dbo"");
+            HasKey(k => k.BlogKey);
+            HasMany(p => p.Posts).WithMany(p => p.Blogs).Map(m=> m.ToTable(""AnotherBlogsPostsTable"", ""dbo"").MapLeftKey(""BlogId"").MapRightKey(""PostId""));
+        }
+    }
+
+    public class PostConfiguration : EntityTypeConfiguration<Post>
+    {
+        public PostConfiguration()
+        {
+            ToTable(""Post"", ""dbo"");
+            HasKey(k => k.PostKey);
+        }
+    }
+}
+", "c#")
+        <div><img src="~/Content/Images/EF2.png" /></div>
+    </li>
+    <li>
+        <code>HasMany().WithOptional()</code> BlogId will be a null foreign key column
+        <div>
+            ways to write
+            <ul>
+                <li><code>HasMany(p => p.Posts).WithOptional(p => p.Blog).HasForeignKey(p => p.BlogId).WillCascadeOnDelete(false);</code></li>
+                <li><code>HasOptional(p => p.Blog).WithMany(p => p.Posts).HasForeignKey(p => p.BlogId).WillCascadeOnDelete(false);</code></li>
+            </ul>
+        </div>
+        @Html.DisplayCode(@"
+using System.Collections.Generic;
+
+namespace DataLayer
+{
+    public class Blog
+    {
+        public int BlogKey { get; set; }
+        public string Title { get; set; }
+        public string BloggerName { get; set; }
+        public virtual ICollection<Post> Posts { get; set; }
+    }
+}
+
+using System;
+using System.Collections.Generic;
+
+namespace DataLayer
+{
+    public class Post
+    {
+        public int PostKey { get; set; }
+        public string Title { get; set; }
+        public DateTime? DateCreated { get; set; }
+        public string Content { get; set; }
+        public int? BlogId { get; set; }
+        public virtual Blog Blog { get; set; }
+    }
+}
+
+
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity.ModelConfiguration;
+
+namespace DataLayer
+{
+    public class BlogConfiguration : EntityTypeConfiguration<Blog>
+    {
+        public BlogConfiguration()
+        {
+            ToTable(""Blog"", ""dbo"");
+            HasKey(k => k.BlogKey).Property(p=>p.BlogKey).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+            //HasMany(p => p.Posts).WithOptional(p => p.Blog).HasForeignKey(p => p.BlogId).WillCascadeOnDelete(false);
+        }
+    }
+
+    public class PostConfiguration : EntityTypeConfiguration<Post>
+    {
+        public PostConfiguration()
+        {
+            ToTable(""Post"", ""dbo"");
+            HasKey(k => k.PostKey).Property(p=>p.PostKey).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+            HasOptional(p => p.Blog).WithMany(p => p.Posts).HasForeignKey(p => p.BlogId).WillCascadeOnDelete(false);
+        }
+    }
+}
+
+", "c#")
+        <img src="~/Content/Images/EF3.png" />
+        <div><strong>Notice the nullable <code>BlogId</code> property of <code>Post</code> class</strong></div>
+        <br />
+        <div>To have the foreign key in database and not exposed use <code>HasOptional(p => p.Blog).WithMany(p => p.Posts).Map(m=> m.MapKey("AnotherBlogId"));</code></div>
+        <div><code>BlogId</code> can be removed now from the model. If you have it, it will be just another non-null property of the model.</div>
+        @Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+
+namespace DataLayer
+{
+    public class Post
+    {
+        public int PostKey { get; set; }
+        public string Title { get; set; }
+        public DateTime? DateCreated { get; set; }
+        public string Content { get; set; }
+        //public int? BlogId { get; set; }
+        public virtual Blog Blog { get; set; }
+    }
+}
+
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity.ModelConfiguration;
+
+namespace DataLayer
+{
+    public class BlogConfiguration : EntityTypeConfiguration<Blog>
+    {
+        public BlogConfiguration()
+        {
+            ToTable(""Blog"", ""dbo"");
+            HasKey(k => k.BlogKey).Property(p=>p.BlogKey).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+            //HasMany(p => p.Posts).WithOptional(p => p.Blog).HasForeignKey(p => p.BlogId).WillCascadeOnDelete(false);
+        }
+    }
+
+    public class PostConfiguration : EntityTypeConfiguration<Post>
+    {
+        public PostConfiguration()
+        {
+            ToTable(""Post"", ""dbo"");
+            HasKey(k => k.PostKey).Property(p=>p.PostKey).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+            HasOptional(p => p.Blog).WithMany(p => p.Posts).Map(m=> m.MapKey(""AnotherBlogId""));
+        }
+    }
+}
+", "c#")
+        <img src="~/Content/Images/EF4.png" />
+    </li>
+    <li>
+        <code>HasMany().WithRequired()</code> BlogId will be non-null foreign key
+        <div>
+            ways to write
+            <ul>
+                <li><code>HasMany(p => p.Posts).WithRequired(p => p.Blog).HasForeignKey(k => k.BlogId).WillCascadeOnDelete(false);</code></li>
+                <li><code>HasRequired(p => p.Blog).WithMany(p => p.Posts).HasForeignKey(k => k.BlogId).WillCascadeOnDelete(false);</code></li>
+            </ul>
+        </div>
+        @Html.DisplayCode(@"
+using System.Collections.Generic;
+
+namespace DataLayer
+{
+    public class Blog
+    {
+        public int BlogKey { get; set; }
+        public string Title { get; set; }
+        public string BloggerName { get; set; }
+        public virtual ICollection<Post> Posts { get; set; }
+    }
+}
+
+using System;
+using System.Collections.Generic;
+
+namespace DataLayer
+{
+    public class Post
+    {
+        public int PostKey { get; set; }
+        public string Title { get; set; }
+        public DateTime? DateCreated { get; set; }
+        public string Content { get; set; }
+        public int BlogId { get; set; }
+        public virtual Blog Blog { get; set; }
+    }
+}
+
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity.ModelConfiguration;
+
+namespace DataLayer
+{
+    public class BlogConfiguration : EntityTypeConfiguration<Blog>
+    {
+        public BlogConfiguration()
+        {
+            ToTable(""Blog"", ""dbo"");
+            HasKey(k => k.BlogKey).Property(p=>p.BlogKey).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+            //HasMany(p => p.Posts).WithRequired(p => p.Blog).HasForeignKey(k => k.BlogId).WillCascadeOnDelete(false);
+        }
+    }
+
+    public class PostConfiguration : EntityTypeConfiguration<Post>
+    {
+        public PostConfiguration()
+        {
+            ToTable(""Post"", ""dbo"");
+            HasKey(k => k.PostKey).Property(p=>p.PostKey).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+            HasRequired(p => p.Blog).WithMany(p => p.Posts).HasForeignKey(k => k.BlogId).WillCascadeOnDelete(false);
+        }
+    }
+}
+", "c#")
+        <img src="~/Content/Images/EF5.png" />
+
+        <div><strong><code>HasMany().WithRequired().Map()</code></strong> works in the same way that, in case we need to create a foreign key in database that we do not want to expose in the model</div>
+    </li>
+    <li>
+        <code>HasOptional().WithOptional()</code> <code>PostId</code> in <code>Blog</code> and <code>BlogId</code> in <code>Post</code> will have foreign key in one of them depending on which is chosen to be Principal and Dependent. Let's for this example have <code>Blog</code> as Principal
+        <div>
+            ways to write
+            <ul>
+                <li><code>HasOptional(p => p.Post).WithOptionalPrincipal(p => p.Blog).WillCascadeOnDelete(false);</code></li>
+                <li><code>HasOptional(p => p.Blog).WithOptionalDependent(p => p.Post).WillCascadeOnDelete(false);</code></li>
+            </ul>
+        </div>
+                @Html.DisplayCode(@"
+using System.Collections.Generic;
+
+namespace DataLayer
+{
+    public class Blog
+    {
+        public int BlogKey { get; set; }
+        public string Title { get; set; }
+        public string BloggerName { get; set; }
+        public virtual Post Post { get; set; }
+    }
+}
+
+
+using System;
+using System.Collections.Generic;
+
+namespace DataLayer
+{
+    public class Post
+    {
+        public int PostKey { get; set; }
+        public string Title { get; set; }
+        public DateTime? DateCreated { get; set; }
+        public string Content { get; set; }
+        public virtual Blog Blog { get; set; }
+    }
+}
+
+
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity.ModelConfiguration;
+
+namespace DataLayer
+{
+    public class BlogConfiguration : EntityTypeConfiguration<Blog>
+    {
+        public BlogConfiguration()
+        {
+            ToTable(""Blog"", ""dbo"");
+            HasKey(k => k.BlogKey).Property(p=>p.BlogKey).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+            //HasOptional(p => p.Post).WithOptionalPrincipal(p => p.Blog).WillCascadeOnDelete(false);
+        }
+    }
+
+    public class PostConfiguration : EntityTypeConfiguration<Post>
+    {
+        public PostConfiguration()
+        {
+            ToTable(""Post"", ""dbo"");
+            HasKey(k => k.PostKey).Property(p=>p.PostKey).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+            HasOptional(p => p.Blog).WithOptionalDependent(p => p.Post).WillCascadeOnDelete(false);
+        }
+    }
+}
+", "c#")
+                <img src="~/Content/Images/EF6.png" />
+        <div>This does not allows to have a foreign key property in the model, automatically creates a foreign key by convention in database. The name of this foreign key can be overriden by using <code>HasOptional().WithOptional().Map()</code></div>
+    </li>
+    <li>
+        <code>HasOptional().WithRequired()</code>
+        <div>In case <code>Blog</code> and <code>Post</code> models have there primary keys set by database, forexample : identity columns. This configuration will throw an error. Read <a href="http://stackoverflow.com/questions/24605152/a-dependent-property-in-a-referentialconstraint-is-mapped-to-a-store-generated-c">This Stack Overflow question.</a></div>
+        <div>We need to keep our optional table key as <code>DatabaseGeneratedOption.None</code></div>
+        <div>
+            ways to write
+            <ul>
+                <li><code>HasOptional(p => p.Post).WithRequired(p => p.Blog).WillCascadeOnDelete(false);</code></li>
+                <li><code>HasRequired(p => p.Blog).WithOptional(p => p.Post).WillCascadeOnDelete(false);</code></li>
+            </ul>
+        </div>
+                @Html.DisplayCode(@"
+using System.Collections.Generic;
+
+namespace DataLayer
+{
+    public class Blog
+    {
+        public int BlogKey { get; set; }
+        public string Title { get; set; }
+        public string BloggerName { get; set; }
+        public virtual Post Post { get; set; }
+    }
+}
+
+
+
+using System;
+using System.Collections.Generic;
+
+namespace DataLayer
+{
+    public class Post
+    {
+        public int PostKey { get; set; }
+        public string Title { get; set; }
+        public DateTime? DateCreated { get; set; }
+        public string Content { get; set; }
+        public virtual Blog Blog { get; set; }
+    }
+}
+
+
+
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity.ModelConfiguration;
+
+namespace DataLayer
+{
+    public class BlogConfiguration : EntityTypeConfiguration<Blog>
+    {
+        public BlogConfiguration()
+        {
+            ToTable(""Blog"", ""dbo"");
+            HasKey(k => k.BlogKey).Property(p=>p.BlogKey).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+            //HasOptional(p => p.Post).WithRequired(p => p.Blog).WillCascadeOnDelete(false);
+        }
+    }
+
+    public class PostConfiguration : EntityTypeConfiguration<Post>
+    {
+        public PostConfiguration()
+        {
+            ToTable(""Post"", ""dbo"");
+            HasKey(k => k.PostKey).Property(p=>p.PostKey).HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
+            HasRequired(p => p.Blog).WithOptional(p => p.Post).WillCascadeOnDelete(false);
+        }
+    }
+}
+", "c#")
+                <img src="~/Content/Images/EF7.png" />
+    </li>
+    <li>
+        <code>HasRequired().WithRequired()</code>
+        <div>TODO</div>
+    </li>
+</ol>
