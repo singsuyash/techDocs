@@ -787,7 +787,8 @@ namespace Client
         <div>
             ways to write
             <ul>
-                <li></li>
+                <li><code>HasRequired(p => p.Post).WithRequiredPrincipal(p => p.Blog).WillCascadeOnDelete(false);</code></li>
+                <li><code>HasRequired(p => p.Blog).WithRequiredDependent(p => p.Post).WillCascadeOnDelete(false)</code></li>
             </ul>
         </div>
         @Html.DisplayCode(@"
@@ -879,7 +880,9 @@ namespace Client
 
 ", "c#")<img src="../../Content/Images/EF9.png" alt="" />
         <div>
-            In case you run <code>Blog blog = new Blog {Title=""world"", Post = null, BloggerName = ""suyash""}</code>, there will <em><strong>NOT be any error</strong></em>. Asked this question on Stack Overflow <a href="">here</a>. But, in case we map the dependent's foreign key column to another column it will throw an error about requiring the post.
+            In case you run <code>Blog blog = new Blog {Title=""world"", Post = null, BloggerName = ""suyash""}</code>, there will <em><strong>NOT be any error</strong></em>.
+<div><img src="../../Content/Images/EF10.png" alt="" /></div>
+            Asked this question on Stack Overflow <a href="http://stackoverflow.com/questions/30476860/entity-framework-fluent-api-relationship-mapping-hasrequired-withrequired-no">here</a>. But, in case we map the dependent's foreign key column to another column it will throw an error: <code>{"Entities in 'MyDbContext.Blogs' participate in the 'Blog_Post' relationship. 0 related 'Blog_Post_Target' were found. 1 'Blog_Post_Target' is expected."}</code> about requiring the post.
         </div>
     </li>
 </ol>
