@@ -522,7 +522,7 @@ namespace DataLayer
                 <li><code>HasOptional(p => p.Blog).WithOptionalDependent(p => p.Post).WillCascadeOnDelete(false);</code></li>
             </ul>
         </div>
-                @Html.DisplayCode(@"
+        @Html.DisplayCode(@"
 using System.Collections.Generic;
 
 namespace DataLayer
@@ -579,13 +579,18 @@ namespace DataLayer
     }
 }
 ", "c#")
-                <img src="~/Content/Images/EF6.png" />
+        <img src="~/Content/Images/EF6.png" />
         <div>This does not allows to have a foreign key property in the model, automatically creates a foreign key by convention in database. The name of this foreign key can be overriden by using <code>HasOptional().WithOptional().Map()</code></div>
     </li>
     <li>
-        <code>HasOptional().WithRequired()</code>
+        <code>HasOptional().WithRequired()</code> We will assume <code>Blog</code> to be required and <code>Post</code> to be optional in this example.
         <div>In case <code>Blog</code> and <code>Post</code> models have there primary keys set by database, forexample : identity columns. This configuration will throw an error. Read <a href="http://stackoverflow.com/questions/24605152/a-dependent-property-in-a-referentialconstraint-is-mapped-to-a-store-generated-c">This Stack Overflow question.</a></div>
         <div>We need to keep our optional table key as <code>DatabaseGeneratedOption.None</code></div>
+
+        <div>By default the dependent's primary key will also become foreign key column which  will reference the primary key column of the principal. We <em><strong>can make the dependent's primary key to be databasegenerated as an identity column if we provide a mapped column using <code>HasOptional().WithRequired().Map()</code>. In this case this mapped column will become not null.</strong></em></div>
+        <div>
+            After this example we will see the difference between <code>HasOptional().WithRequired()</code> &amp; <code>HasRequired().WithRequired()</code> with an example. We will notice that the database structure made for these two are same. The difference is that in case of <code>HasRequired().WithRequired()</code> a <code>Blog</code> can not exist without a <code>Post</code>.
+        </div>
         <div>
             ways to write
             <ul>
@@ -593,7 +598,9 @@ namespace DataLayer
                 <li><code>HasRequired(p => p.Blog).WithOptional(p => p.Post).WillCascadeOnDelete(false);</code></li>
             </ul>
         </div>
-                @Html.DisplayCode(@"
+
+        <div>Below example demonstrates <code>HasOptional().WithRequired()</code> with <code>DatabaseGeneratedOption.None</code> for the dependent and no mapped column.</div>
+        @Html.DisplayCode(@"
 using System.Collections.Generic;
 
 namespace DataLayer
@@ -637,7 +644,7 @@ namespace DataLayer
         {
             ToTable(""Blog"", ""dbo"");
             HasKey(k => k.BlogKey).Property(p=>p.BlogKey).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-            //HasOptional(p => p.Post).WithRequired(p => p.Blog).WillCascadeOnDelete(false);
+            HasOptional(p => p.Post).WithRequired(p => p.Blog).WillCascadeOnDelete(false);
         }
     }
 
@@ -647,16 +654,233 @@ namespace DataLayer
         {
             ToTable(""Post"", ""dbo"");
             HasKey(k => k.PostKey).Property(p=>p.PostKey).HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
-            HasRequired(p => p.Blog).WithOptional(p => p.Post).WillCascadeOnDelete(false);
+            //HasRequired(p => p.Blog).WithOptional(p => p.Post).WillCascadeOnDelete(false);
+
         }
     }
 }
+
+using DataLayer;
+using System;
+
+namespace Client
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            MyDbContext c = new MyDbContext();
+
+            //Blog required, Post not required
+            Blog blog = new Blog { Title = ""world"", Post = null, BloggerName = ""suyash"" };
+
+
+            //Blog required, Post required
+            //Blog blog = new Blog { Title = ""work"", Post = new Post { Title = ""new world post"" }, BloggerName = ""suyash"" };
+
+            c.Blogs.Add(blog);
+
+            c.SaveChanges();
+
+        }
+    }
+}
+
+
 ", "c#")
-                <img src="~/Content/Images/EF7.png" />
+
+        <img src="~/Content/Images/EF7.png" /><img src="../../Content/Images/EF7_data.png" alt="" />
+
+        <div>Below example demonstrates <code>HasOptional().WithRequired()</code> with <code>DatabaseGeneratedOption.Identity</code> for the dependent and a mapped column.</div>
+
+        @Html.DisplayCode(@"
+using System.Collections.Generic;
+
+namespace DataLayer
+{
+    public class Blog
+    {
+        public int BlogKey { get; set; }
+        public string Title { get; set; }
+        public string BloggerName { get; set; }
+        public virtual Post Post { get; set; }
+    }
+}
+
+
+
+using System;
+using System.Collections.Generic;
+
+namespace DataLayer
+{
+    public class Post
+    {
+        public int PostKey { get; set; }
+        public string Title { get; set; }
+        public DateTime? DateCreated { get; set; }
+        public string Content { get; set; }
+        public virtual Blog Blog { get; set; }
+    }
+}
+
+
+
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity.ModelConfiguration;
+
+namespace DataLayer
+{
+    public class BlogConfiguration : EntityTypeConfiguration<Blog>
+    {
+        public BlogConfiguration()
+        {
+            ToTable(""Blog"", ""dbo"");
+            HasKey(k => k.BlogKey).Property(p=>p.BlogKey).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+            HasOptional(p => p.Post).WithRequired(p => p.Blog).Map(m=>m.MapKey(""BlogKey"")).WillCascadeOnDelete(false);
+        }
+    }
+
+    public class PostConfiguration : EntityTypeConfiguration<Post>
+    {
+        public PostConfiguration()
+        {
+            ToTable(""Post"", ""dbo"");
+            HasKey(k => k.PostKey).Property(p=>p.PostKey).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+            //HasRequired(p => p.Blog).WithOptional(p => p.Post).WillCascadeOnDelete(false);
+
+        }
+    }
+}
+
+using DataLayer;
+using System;
+
+namespace Client
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            MyDbContext c = new MyDbContext();
+
+            //Blog required, Post not required
+            Blog blog = new Blog { Title = ""world"", Post = null, BloggerName = ""suyash"" };
+
+
+            //Blog required, Post required
+            //Blog blog = new Blog { Title = ""work"", Post = new Post { Title = ""new world post"" }, BloggerName = ""suyash"" };
+
+            c.Blogs.Add(blog);
+
+            c.SaveChanges();
+
+        }
+    }
+}
+
+
+", "c#")<img src="../../Content/Images/EF8.png" alt="" />
     </li>
     <li>
         <code>HasRequired().WithRequired()</code>
-        <div>TODO</div>
+        <div>
+            ways to write
+            <ul>
+                <li></li>
+            </ul>
+        </div>
+        @Html.DisplayCode(@"
+using System.Collections.Generic;
+
+namespace DataLayer
+{
+    public class Blog
+    {
+        public int BlogKey { get; set; }
+        public string Title { get; set; }
+        public string BloggerName { get; set; }
+        public virtual Post Post { get; set; }
+    }
+}
+
+
+
+using System;
+using System.Collections.Generic;
+
+namespace DataLayer
+{
+    public class Post
+    {
+        public int PostKey { get; set; }
+        public string Title { get; set; }
+        public DateTime? DateCreated { get; set; }
+        public string Content { get; set; }
+        public virtual Blog Blog { get; set; }
+    }
+}
+
+
+
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity.ModelConfiguration;
+
+namespace DataLayer
+{
+    public class BlogConfiguration : EntityTypeConfiguration<Blog>
+    {
+        public BlogConfiguration()
+        {
+            ToTable(""Blog"", ""dbo"");
+            HasKey(k => k.BlogKey).Property(p=>p.BlogKey).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+            HasRequired(p => p.Post).WithRequiredPrincipal(p => p.Blog).WillCascadeOnDelete(false);
+        }
+    }
+
+    public class PostConfiguration : EntityTypeConfiguration<Post>
+    {
+        public PostConfiguration()
+        {
+            ToTable(""Post"", ""dbo"");
+            HasKey(k => k.PostKey).Property(p=>p.PostKey).HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
+            //HasRequired(p => p.Blog).WithRequiredDependent(p => p.Post).WillCascadeOnDelete(false);
+
+        }
+    }
+}
+
+using DataLayer;
+using System;
+
+namespace Client
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            MyDbContext c = new MyDbContext();
+
+            //Blog required, Post not required
+            //Blog blog = new Blog { Title = ""world"", Post = null, BloggerName = ""suyash"" };
+
+
+            //Blog required, Post required
+            Blog blog = new Blog { Title = ""work"", Post = new Post { Title = ""new world post"" }, BloggerName = ""suyash"" };
+
+            c.Blogs.Add(blog);
+
+            c.SaveChanges();
+
+        }
+    }
+}
+
+
+", "c#")<img src="../../Content/Images/EF9.png" alt="" />
+        <div>
+            In case you run <code>Blog blog = new Blog {Title=""world"", Post = null, BloggerName = ""suyash""}</code>, there will <em><strong>NOT be any error</strong></em>. Asked this question on Stack Overflow <a href="">here</a>. But, in case we map the dependent's foreign key column to another column it will throw an error about requiring the post.
+        </div>
     </li>
 </ol>
 
