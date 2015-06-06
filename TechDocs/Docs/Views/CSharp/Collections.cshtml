@@ -1,0 +1,1295 @@
+﻿@{
+    ViewBag.Title = "Collections";
+}
+
+<h2>Collections</h2>
+
+<p>
+    We will talk about different types of collections, several collection interfaces and how they work under the hood.
+</p>
+<p>
+    The course will be as follows:
+    <ul>
+        <li>Introduction</li>
+        <li>
+            Arrays
+            <ul>
+                <li>Inside Arrays</li>
+                <li>Array capabilities</li>
+            </ul>
+        </li>
+        <li>Interfaces</li>
+        <li>
+            Collection Types
+            <ul>
+                <li>Index-based lists</li>
+                <li>Other lists(Linked Lists, Stacks, Queues)</li>
+                <li>Dictionaries</li>
+                <li>Sets</li>
+            </ul>
+        </li>
+        <li>Enumerators</li>
+        <li>Multidimensional and Jagged Arrays</li>
+    </ul>
+</p>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Collection Introduction</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>
+                What is a collection
+                <ul>
+                    <li>Collection Operations</li>
+                </ul>
+            </li>
+            <li>
+                Types of collection
+                <ul>
+                    <li>Lists</li>
+                    <li>Dictionaries</li>
+                    <li>Sets</li>
+                </ul>
+            </li>
+            <li>
+                Collections in .NET
+                <ul>
+                    <li>A brief history</li>
+                    <li>The current collection landscape</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">What is a collection</div>
+    </div>
+    <div class="panel-body">
+        <p>A collection is a <em>Type</em> responsible to manage groups of other objects in memory</p>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Types of collection</div>
+    </div>
+    <div class="panel-body">
+        <p>All the collections provided by .net come under Lists, Dictionaries or Sets</p>
+        <p>
+            In some collections sometimes the order of elements is important, this is <em>List</em>. These have indexes. Good for memory use, efficient for accessing elements. List Types in .NET
+            <ul>
+                <li><code>@Html.Raw(Html.Encode("T[]"))</code> - Array</li>
+                <li><code>@Html.Raw(Html.Encode("List<T>"))</code></li>
+                <li><code>@Html.Raw(Html.Encode("Collection<T>"))</code></li>
+                <li><code>@Html.Raw(Html.Encode("ReadOnlyCollection<T>"))</code></li>
+                <li><code>@Html.Raw(Html.Encode("ObservableCollection<T>"))</code></li>
+                <li><code>@Html.Raw(Html.Encode("IList<T>"))</code> - This is a definitive contract for all lists</li>
+            </ul>
+        </p>
+        <br />
+        <p>
+            When the order is not important, for example <em>staff of an organization</em>. They need not have an order, this is <em>Dictionary</em>. Accessing items by index is not required. Access is based on a Key.
+            <ul>
+                <li><code>@Html.Raw(Html.Encode("Dictionary<TKey, TValue>"))</code></li>
+                <li><code>@Html.Raw(Html.Encode("IDictionary<TKey, TValue>"))</code> -  This is a definitive contract for all dictionaries</li>
+            </ul>
+        </p>
+        Most of the dictionaries are implemented using a <em>hash table</em>.
+        <p>
+            For example:
+            Declare a dictionary that allows looking up by a name:
+            @Html.DisplayCode(@"
+var employees = new Dictionary<string, Employee>();
+", "C#")
+            Or, for looking up by social security no. declare:
+            @Html.DisplayCode(@"
+var employees = new Dictionary<SocialSecNo, Employee>();
+", "C#")
+        </p>
+        <p>
+            Lists are faster to access than dictionaries
+            <img src="../../Content/Images/ListVsDictionaryAccessSpeed.png" alt="" />
+        </p>
+
+        <br />
+        <p>
+            The focus is not on accessig a single element, but treating the whole group as one. This is <em>Sets</em>. This is same as the sets in set theory. To find out intersection, union etc. Sets are collections that support being combined to form new sets
+            <ul>
+                <li><code>@Html.Raw(Html.Encode("HashSet<T>"))</code></li>
+                <li><code>@Html.Raw(Html.Encode("ISet<T>"))</code> - Contract for sets</li>
+            </ul>
+            Similarity between <em>dictionary</em> and <em>Set</em> is that both are often based on hashtable. Difference is that a dictionary lookup with keys. In sets there is <em>no lookup</em>.
+        </p>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Collection Operations</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>
+                Reading
+                <ul>
+                    <li>Single item Through index or keys</li>
+                    <li>
+                        All items through enumerator using a foreach loop
+                        <ul>
+                            <li>elements in a list are enumerated in the index order</li>
+                            <li>elements in the dictionary are not enumerated in the order, so dont rely for a order in a dictionary.</li>
+                        </ul>
+                    </li>
+                    <li>Sets don't support lookin up of an item, there are a few list types too that dont support a lookup(Linked lists, Stacks, Queues)</li>
+                </ul>
+            </li>
+            <li>
+                Writing
+                <ul>
+                    <li>
+                        Add an item
+                        <ul>
+                            <li>In lists you might want to add an item at a particular order</li>
+                            <li>In dictionaries it does not matter</li>
+                        </ul>
+                    </li>
+                    <li>Remove an item</li>
+                    <li>Replace an item</li>
+                </ul>
+            </li>
+            <li>
+                Derived operation
+                <ul>
+                    <li>Filter a list - this is reading all the items and fetching which satisfies the condition</li>
+                </ul>
+                Usually this is done using <em>LINQ</em>
+            </li>
+        </ul>
+        <img src="../../Content/Images/collectionOperations.png" alt="" />
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Collections in .NET</div>
+    </div>
+    <div class="panel-body">
+        <img src="../../Content/Images/CollectionHistory.png" alt="" />
+        <ul>
+            <li>
+                Generics in .NET 2.0
+                <p><code>@Html.Raw(Html.Encode("List<T>"))</code> was introduced. instead of list of a type earlier there was only <em>ArrayList(of object)</em> available that would be a list of your type, but you have to box and unbox that object to the type and vice versa to use it.</p>
+                <p>But there was an Array that could hold a collection of types. But due to differences between Arrays and Generics, Generics prevailed.</p>
+                <p>
+                    What came along was :
+                    <ul>
+                        <li><code>@Html.Raw(Html.Encode("HashSet<T>, Stack<T>, Queue<T>, LinkedList<T>, List<T>, Dictionary<TKey, TValue>"))</code></li>
+                    </ul>
+                </p>
+            </li>
+            <li>
+                LINQ in .NET 3.0
+                <p>Adds operations to anything enumerable - including collections</p>
+            </li>
+            <li>
+                Concurrent Collections .NET 4.0
+                <p>Multi-threaded support (Not covered in this course)</p>
+            </li>
+            <li>
+                Readonly Interfaces, Immutable collections
+                <ul>
+                    ReadOnly Interfaces
+                    <li><code>@Html.Raw(Html.Encode("IReadOnlyList<T>"))</code></li>
+                    <li><code>@Html.Raw(Html.Encode("IReadOnlyCollection<T>"))</code></li>
+                </ul>
+            </li>
+        </ul>
+        <img src="../../Content/Images/CollectionsToday.png" alt="" />
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Inside Arrays</div>
+    </div>
+    <div class="panel-body">
+        <p>This section will deal with "What arrays are", "how do they work", "C# syntax to use them".</p>
+        <p>Next module will cover the implementation of arrays in .NET, how arrays fit into the .NET type system and the rich functionality that the managed array type implements</p>
+        <ul>
+            <li>
+                What is an array
+                <ul>
+                    <li>Basic Syntax</li>
+                </ul>
+            </li>
+            <li>
+                Arrays under the hood
+                <ul>
+                    <li>Element access is very efficient</li>
+                </ul>
+            </li>
+            <li>Declaring and initializing arrays</li>
+            <li>
+                Enumerating(iterating) array contents
+                <ul>
+                    <li>foreach loop</li>
+                    <li>for loop</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">What are Arrays</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>Index based list</li>
+            <li>rich api</li>
+            <li>very lightweight</li>
+            <li>special c# syntax</li>
+            <li>fixed size - this is a drawback</li>
+        </ul>
+        An example for which arrays will suit best : Consider the days of a week where <em>Order</em> and <em>Size</em> are fixed.
+        <p>
+            <code>type[]</code> - declares array, not simple type
+        </p>
+
+        <p>
+            Iterating with foreach
+            @Html.DisplayCode(@"
+foreach (var day in daysOfWeek)
+			{
+				Console.WriteLine(day);
+			}
+", "c#")
+        </p>
+        <p>Notice we can replace an array item as such : <code>daysOfWeek[4]="PartyDay"</code></p>.
+        <p>Since arrays have a fixed size, we can not remove or add an item.</p>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Arrays under the Hood</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>Special syntax in c# i.e. <code>int[] iHaveSquareBrackets</code>. No other type will use square brackets</li>
+            <li>
+                <code>T[]</code> is a reference type
+                @Html.DisplayCode(@"
+void Main()
+{
+	int[] x = new int[5]{1234,23,356,7,6};
+	change(x);
+	Console.WriteLine (x[0]);
+}
+
+// Define other methods and classes here
+
+public void change(int[] intArray)
+{
+	intArray[0] = 5;
+}
+", "c#")
+                The output is 5;
+            </li>
+            <li>Implemented in the CLR itself</li>
+            <li>
+                Other Collections are implemented using generics. And internally they are mostly implemented using Arrays!
+                <p>For example, the generic collection <code>@Html.Raw(Html.Encode("List<T>"))</code> is a wrapper around <code>T[]</code> and the wrapper adds additional features.</p>
+            </li>
+            <li>
+                How arrays are stored
+                <ul>
+                    <li>
+                        Consider an integer array
+                        @Html.DisplayCode(@"
+int[] squares = {1, 2, 9, 16, 25}
+", "c#")
+                        <p><code>int</code> occupies 4 bytes. This array is stored in a continous memory stream. Each array element is of 4 bytes.</p>
+                        <p>Since all elements are of equal size, consider the memory address of the 0th element at <em><strong>X</strong></em>. 1st element will be at <em><strong>X+4Bytes</strong></em>. 2nd element will be at <em><strong>X+2*4Bytes</strong></em>. Nth element will be at <em><strong>X+(N-1)*4Bytes</strong></em></p>
+                        <p>Now, when we lookup an array element this direct formula can be applied. This demonstrates the speed of accessing an array element.</p>
+                        <p><code>int</code> have a fixed size of 4 Bytes, but what about a complex type whose size can vary. In this case the formula becomes <em><strong>X+(N-1)*YBytes</strong></em> where Y in case of <code>int</code> was 4 but for comples types it can not be determined always.</p>
+                        <p>Are we forgetting something :). Complex types are reference types. Each reference points to a memory location which is <em><strong>Y Bytes</strong></em>. In case of <code>T[]</code> the continous memory stream is of references, not actual data and fortunately in 64 bit machine, this reference size is of 8 bytes. This makes the formula as <em><strong>X+(N-1)*8Bytes</strong></em>, and once again the jumping or array lookup becomes quick.</p>
+                        <p>Note that these references are actually memory addresses. Addresses are always integers</p>
+                    </li>
+                    <li>
+                        Let's try to understand why arrays are of fixed size:
+                        <p><img src="../../Content/Images/arrayfixedsize.png" alt="" /></p>
+                        Here we can see that if we want to add some more elements to an array, the memory stream after the last element of the array might not be free. If it is not free, the way of accessing an array i.e. <em><strong>X+(N-1)*YBytes</strong></em> will not hold.
+                    </li>
+                </ul>
+            </li>
+
+        </ul>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">How Arrays are initialized</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>
+                Since arrays are refernce types, the below code is not initialized yet.
+                @Html.DisplayCode(@"
+int[] x;
+Console.WriteLine(x[0].ToString());
+", "C#")
+                The above code will throw an error "use of unassigned variable". But if you just new it up and don't assign any value, just like a reference type, the variable will be filled with the default values.
+                @Html.DisplayCode(@"
+int[] x = new int[5];
+Console.WriteLine(x[1].ToString());
+", "c#")
+                This will output <code>0</code> as default value for <code>int</code> in reference types is 0.
+            </li>
+            <li>
+                <p>
+                    Array Initializer
+                    <ul>
+                        <li>
+                            @Html.DisplayCode(@"
+string[] daysOfWeek = {
+						""Monday"",
+						""Tuesday"",
+						""Wednesday"",
+						""Thursday"",
+						""Friday"",
+						""Saturday"",
+						""Sunday""
+					};
+
+
+", "c#")
+                        </li>
+                        <li>
+                            @Html.DisplayCode(@"
+
+
+string[] DaysOfWeek = new string[7]{
+		""Monday"",
+		""Tuesday"",
+		""Wednesday"",
+		""Thursday"",
+		""Friday"",
+		""Saturday"",
+		""Sunday""
+};
+", "c#")
+                        </li>
+                        <li>
+                            Without the size
+                            @Html.DisplayCode(@"
+
+
+string[] DaysOfWeek = new string[]{
+		""Monday"",
+		""Tuesday"",
+		""Wednesday"",
+		""Thursday"",
+		""Friday"",
+		""Saturday"",
+		""Sunday""
+};
+", "c#")
+                        </li>
+                    </ul>
+                    Any expression that will evaluate at run time can come in the initializer
+                </p>
+            </li>
+            <li>Consider <code>[]</code> as the Array constructor</li>
+            <li>
+                There is no way to initialize the array in the Array constructor
+            </li>
+            <li>Only thing that can be given in the Array constructor is the size of an array</li>
+            <li>
+                <img src="../../Content/Images/ArrayInitializerCompiler.png" alt="" />
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Enumerating an Array</div>
+    </div>
+    <div class="panel-body">
+        Enumerating through <code>foreach</code> and <code>for</code>. Difference as a developer is that index is available in <code>for</code>. But internally c# compiler converts <code>foreach</code> to <code>for</code>.
+        @Html.DisplayCode(@"
+using System;
+
+namespace BasicArrayOps
+{
+	class Program
+	{
+		static void Main(string[] args)
+		{
+
+			int[] x = { 1, 2, 3, 4, 5 };
+			foreach (int item in x)
+			{
+				Console.WriteLine(item);
+			}
+			Console.WriteLine();
+
+			for (int i = 0; i < x.Length; i++)
+			{
+				Console.WriteLine(x[i] );
+			}
+			Console.ReadLine();
+		}
+	}
+}
+
+", "c#")<img src="../../Content/Images/enumerationOutput.png" alt="" />
+        <p>For Arrays the compiler internally converts <code>foreach</code> to <code>for</code> but for other collection types it treats it differently.</p>
+        <p>
+            Usually for other collections its much easier to use <code>foreach</code>, so why have <code>for</code> at all.
+            <ul>
+                <li>Access index</li>
+                <li>Conditions based on index</li>
+                <li>
+                    <code>foreach </code>can not run for specific element because the index is not available.
+                </li>
+                <li>
+                    <code>foreach </code>is a readonly. i.e. we can not change the value of an element inside a <code>foreach </code>. But in a <code>for</code>loop we can
+                    @Html.DisplayCode(@"
+using System;
+
+namespace BasicArrayOps
+{
+	class Program
+	{
+		static void Main(string[] args)
+		{
+
+			int[] x = { 1, 2, 3, 4, 5 };
+			for (int i = 0; i < x.Length; i++)
+			{
+				if (x[i]==3)
+				{
+					x[i] = 5000;
+				}
+				Console.WriteLine(x[i]);
+			}
+			Console.ReadLine();
+		}
+	}
+}
+
+", "c#")<img src="../../Content/Images/changingvalueinforloop.png" alt="" />
+                    @Html.DisplayCode(@"
+using System;
+
+namespace BasicArrayOps
+{
+	class Program
+	{
+		static void Main(string[] args)
+		{
+
+			int[] x = { 1, 2, 3, 4, 5 };
+
+			foreach (var item in x)
+			{
+				if (item==3)
+				{
+					item = 5000;
+				}
+				Console.WriteLine(item);
+			}
+			Console.ReadLine();
+		}
+	}
+}
+
+", "c#")<img src="../../Content/Images/changingvalueinforeachloop.png" alt="" />
+                    This is because the iteration placeholder variable cannot be assigned to. It is a readonly.
+                </li>
+            </ul>
+        </p>
+        <p>
+            The reason why the iteration placeholder variable cannot be assigned to can be explained by the below code. Remember we said that internally <code>foreach</code> is replaced by a <code>for</code> for arrays.
+            @Html.DisplayCode(@"
+using System;
+
+namespace BasicArrayOps
+{
+	class Program
+	{
+		static void Main(string[] args)
+		{
+
+			int[] x = { 1, 2, 3, 4, 5 };
+
+			foreach (var item in x)
+			{
+				if (item==3)
+				{
+					item = 5000;
+				}
+				Console.WriteLine(item);
+			}
+			Console.ReadLine();
+		}
+	}
+}
+
+", "c#")
+            The similar <code>for</code> equivalent can be
+            @Html.DisplayCode(@"
+using System;
+
+namespace BasicArrayOps
+{
+	class Program
+	{
+		static void Main(string[] args)
+		{
+
+			int[] x = { 1, 2, 3, 4, 5 };
+			for (int i = 0; i < x.Length; i++)
+			{
+				int item = x[i];
+				if (item == 3)
+				{
+					item = 5000;
+				}
+				Console.WriteLine(x[i]);
+			}
+
+			Console.ReadLine();
+		}
+	}
+}
+
+
+", "c#")<img src="../../Content/Images/foreachtofor.png" alt="" />
+            <div class="h3">This shows that element can not be replaced by another value. In case of immutable type's arrays the value is copied and can not be changed. In case of mutable reference type's arrays the reference is copied and can not be changed. BUT the reference can be <em><strong>modified</strong></em>.</div>
+            @Html.DisplayCode(@"
+using System;
+
+namespace BasicArrayOps
+{
+	class Program
+	{
+		static void Main(string[] args)
+		{
+
+			Employee[] employees = new Employee[]{
+				new Employee(){EmpId=1, Name=""susingh""},
+				new Employee(){EmpId=2, Name=""scott""}
+			};
+
+			foreach (var employee in employees)
+			{
+				employee.Name = ""Ben"";
+				Console.WriteLine(employee.Name);
+			}
+
+			Console.ReadLine();
+		}
+	}
+
+	public class Employee
+	{
+		public int EmpId { get; set; }
+		public string Name { get; set; }
+	}
+}
+
+", "c#")<img src="../../Content/Images/changingmutablepropertyforeach.png" alt="" />
+            But the below will throw an error
+            @Html.DisplayCode(@"
+using System;
+
+namespace BasicArrayOps
+{
+	class Program
+	{
+		static void Main(string[] args)
+		{
+
+			Employee[] employees = new Employee[]{
+				new Employee(){EmpId=1, Name=""susingh""},
+				new Employee(){EmpId=2, Name=""scott""}
+			};
+
+			foreach (var employee in employees)
+			{
+				employee = new Employee() { EmpId = 5, Name = ""Ben"" };
+				//employee.Name = ""Ben"";
+				Console.WriteLine(employee.Name);
+			}
+
+			Console.ReadLine();
+		}
+	}
+
+	public class Employee
+	{
+		public int EmpId { get; set; }
+		public string Name { get; set; }
+	}
+}
+
+", "c#")<img src="../../Content/Images/changingvalueinforeachloop.png" alt="" />
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Module Overview</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>
+                Arrays and the type system
+                <ul>
+                    <li>Reference Type</li>
+                </ul>
+            </li>
+            <li>
+                Storing derived Type Instances
+                <ul>
+                    <li>Covariance</li>
+                </ul>
+            </li>
+            <li>
+                Array capabilities
+                <ul>
+                    <li>Copying Arrays</li>
+                    <li>Sorting elements</li>
+                    <li>Finding elements</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Arrays as Reference Types</div>
+    </div>
+    <div class="panel-body">
+        Proof that Arrays are reference types
+        @Html.DisplayCode(@"
+using System;
+
+namespace BasicArrayOps
+{
+	class Program
+	{
+		static void Main(string[] args)
+		{
+			int[] x = { 1, 4, 9, 16 };
+			var y = x;
+			Console.WriteLine(""Reference Equals(x,y): "" + ReferenceEquals(x,y));
+
+			Console.ReadLine();
+		}
+	}
+
+}
+
+", "C#")<img src="../../Content/Images/ArrayAsReference/ProofArrayAsRefernce.png" alt="" />
+        Since Arrays are Reference types, <code>==</code> is same as <code>ReferenceEquals</code>.
+        <p>All Collections are Refernces.</p>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Storing Derived Instances in Arrays</div>
+    </div>
+    <div class="panel-body">
+        In case we create an array of a Type <code>Base</code>, any derived type can be stored in this array.
+        @Html.DisplayCode(@"
+using System;
+
+namespace BasicArrayOps
+{
+	class Program
+	{
+		static void Main(string[] args)
+		{
+			Animal[] animals = new Animal[] {
+				new Animal(){TailLength=""10""},
+				new Dog(){Name = ""Bruno"", TailLength=""8""},
+				new Doberman(){Name=""Jimmy"", TailLength=""2""}
+			};
+
+			foreach (Animal animal in animals)
+			{
+				Console.WriteLine(""AnimalType: ""+animal.GetType().FullName+"", TailLength: ""+animal.TailLength);
+			}
+
+			Console.ReadLine();
+		}
+	}
+
+	public class Animal
+	{
+		public string TailLength { get; set; }
+	}
+
+	public class Dog : Animal
+	{
+		public string Name { get; set; }
+	}
+
+	public class Doberman : Dog
+	{
+
+	}
+}
+
+", "c#")<img src="../../Content/Images/ArrayAsReference/TypeArrayCanContainDerivedType.png" alt="" />
+        <p>This applies to all Collections and not just Arrays</p>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">What is the Type of an Array</div>
+    </div>
+    <div class="panel-body">
+        Any new Array type <code>T[]</code> is derived from <code>System.Array</code> which is derived from <code>System.Object</code>
+        <p>Any new Array type is dynamically created at runtime</p>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Array Covariance</div>
+    </div>
+    <div class="panel-body">
+        You might assume that an array of <code>Derived</code> might be directly related to an array of <code>Base</code>. But this is not the case. Both <code>Derived</code> &amp; <code>Base</code> derive from <code>System.Array</code> which in turn derive from <code>System.Object</code>
+        <p><img src="../../Content/Images/ArrayAsReference/ArraysDontInherit.png" alt="" /></p>
+        <p>
+            We know Type of a Derived array does not have a inheritance relationship with Type of a Base Array. But look at the below code
+            @Html.DisplayCode(@"
+using System;
+
+namespace BasicArrayOps
+{
+	class Program
+	{
+		static void Main(string[] args)
+		{
+			string[] daysOfWeek = {
+									  ""Monday"",
+									  ""Tuesday"",
+									  ""Wednesday"",
+									  ""Thursday"",
+									  ""Friday"",
+									  ""Saturday"",
+									  ""Sunday""
+								  };
+			object[] objArr = daysOfWeek;
+
+			foreach (var item in objArr)
+			{
+				Console.WriteLine(item);
+			}
+
+
+			Console.ReadLine();
+		}
+	}
+
+}
+
+", "")<img src="../../Content/Images/ArrayAsReference/AssigningDerivedTypeArrayToBaseTypeArrayWorks.png" alt="" />
+        </p>
+        <p>
+            This works! even though we are assigning a completely different type to another type. This is called <em><strong>Implicit casting</strong></em>. <code>Derived[]</code> can be implicitly casted to <code>Base[]</code>. This feature of Arrays is called <em><strong>Array Covariance</strong></em>
+        </p>
+        <p>
+            Notice that this doesn't works for an array of value types.
+            @Html.DisplayCode(@"
+using System;
+
+namespace BasicArrayOps
+{
+	class Program
+	{
+		static void Main(string[] args)
+		{
+			int[] daysOfWeek = { 1, 2, 3, 4, 5, 6, 7 };
+			object[] objArr = daysOfWeek;
+
+			foreach (var item in objArr)
+			{
+				Console.WriteLine(item);
+			}
+
+
+			Console.ReadLine();
+		}
+	}
+
+}
+
+", "C#")<img src="../../Content/Images/ArrayAsReference/CannotImplicitlyConvertTypeIntArrayToObjectArray.png" alt="" />
+        </p>
+        <p>Array Covariance is a problem. In the code above to above notice <code>objArr</code>. After assigning <code>daysOfWeek</code> to <code>objArr</code> we can still change <code>objArr[0]=Foo</code> and not a string. This won't throw an error at compile time but it will throw an error at runtime. The reason is that when daysOfWeek was assigned to objArr, the type of objArr was created. Now when some other type was tried to insert into objArr it threw a <code>System.ArrayTypeMismatchException</code> This only says to us "don't use Array Covariance"</p>
+        <p>Covariance is supported by Array and <code>@Html.Raw(Html.Encode("IEnumerable<T>"))</code> and <code>@Html.Raw(Html.Encode("IEnumerator<T>"))</code>. The later throws a compile time error unlike arrays, so it is useful and good.</p>
+        <p>
+            Covariance except the ones described above are not supported by any other Collection. i.e. <code>@Html.Raw(Html.Encode("List<Derived>"))</code> can not be assigned to <code>@Html.Raw(Html.Encode("List<Base>"))</code>
+            @Html.DisplayCode(@"
+
+using System;
+using System.Collections.Generic;
+
+namespace BasicArrayOps
+{
+	class Program
+	{
+		static void Main(string[] args)
+		{
+			List<string> lstString = new List<String>(){
+									 ""Monday"",
+									 ""Tuesday""
+									 };
+			List<object> lstObject = lstString;
+
+			Console.ReadLine();
+		}
+	}
+
+}
+
+", "c#")
+        </p>
+        <p><img src="../../Content/Images/ArrayAsReference/CovarianceNotAllowedforlists.png" alt="" /></p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">What Arrays can do</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li><a href="https://msdn.microsoft.com/en-us/library/system.array%28v=vs.110%29.aspx">Go to the msdn page for arrays</a> to find the full set of functionalities</li>
+            <li>
+                Array Features
+                <ul>
+                    <li>Copying the array- <code>x.CopyTo(y,0)</code> where <code>x</code> &amp; <code>y</code> are arrays of same types or <code>Array.Copy</code></li>
+                    <li>Rearranging elements -<code>Array.Reverse</code>, <code>Array.Sort</code> for reversing inplace. use <code>x.Reverse()</code> of <code>System.Linq</code> to return a reversed array and leaving the old array as it is.</li>
+                    <li>Finding elements - <code>Array.IndexOf</code>or <code>Array.BinarySearch</code></li>
+                    <li>
+                        Sorting
+                        <p>
+                            Lets talk about <code>IComparer</code>. An <code>@Html.Raw(Html.Encode("IComparer<T>"))</code> says that i know how to compare 2 objects of type <code>T</code>.
+                        </p>
+                        <p>
+                            Take the example of comparing <code>int</code>
+                            @Html.DisplayCode(@"
+using System;
+
+namespace BasicArrayOps
+{
+	class Program
+	{
+		static void Main(string[] args)
+		{
+			int x = 5;
+			int y = 10;
+			Console.WriteLine(y.CompareTo(x)); //outputs 1
+			Console.WriteLine(x.CompareTo(y)); //outputs -1
+
+
+			Console.ReadLine();
+		}
+	}
+
+}
+
+
+", "c#") <img src="../../Content/Images/ArrayAsReference/intCompareTo.png" alt="" />
+                        </p>
+                        <p>
+                            Another example of <code>string</code>
+                            @Html.DisplayCode(@"
+using System;
+
+namespace BasicArrayOps
+{
+	class Program
+	{
+		static void Main(string[] args)
+		{
+			string x = ""Monday"";
+			string y = ""Wednesday"";
+			Console.WriteLine(x.CompareTo(y)); //outputs -1
+
+			Console.ReadLine();
+		}
+	}
+
+}
+
+", "c#") As per the definition in msdn it says "Compares this instance with a specified Object and indicates whether this instance precedes, follows, or appears in the same position in the sort order as the specified string. It compares alphabetically. a comes before b so a.CompareTo(b) will give -1. It actually compares based on a lot of factors as mentioned <a href="https://msdn.microsoft.com/en-us/library/35f0x18w(v=vs.110).aspx">here</a>. See the "Remarks" section.
+                        </p>
+                        <p>
+                            But what about Complex types. How do we compare them?
+                            Usually we don't make a direct comparison of two complex types. But consider the case of Sorting a collection of the type. In this case we would need a way to compare them.
+                            <code>Array.Sort</code> accepts the array to be sorted and an <code>IComparer</code>. This IComparer will be of your type. Basically an IComparer says that i know how to compare 2 objects of a type.
+                            @Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+
+namespace BasicArrayOps
+{
+	class Program
+	{
+		static void Main(string[] args)
+		{
+			Employee e1 = new Employee { Name = ""Suyash"", EmpId = 2 };
+			Employee e2 = new Employee { Name = ""Scott"", EmpId = 1 };
+
+			Employee[] employees = new Employee[] { e1, e2 };
+			Array.Sort(employees, new EmployeeComparer());
+
+			foreach (var employee in employees)
+			{
+				Console.WriteLine(employee.Name);
+			}
+
+			Console.WriteLine();
+
+
+			foreach (var employee in employees)
+			{
+				Console.WriteLine(employee.Name);
+			}
+
+
+			Console.ReadLine();
+		}
+
+	}
+
+
+	public class Employee
+	{
+		public string Name { get; set; }
+		public int EmpId { get; set; }
+	}
+
+	public class EmployeeComparer : IComparer<Employee>
+	{
+		public int Compare(Employee x, Employee y)
+		{
+			if (x.EmpId < y.EmpId)
+			{
+				return -1;
+			}
+			else if (x.EmpId>y.EmpId)
+			{
+				return 1;
+			}
+			return 0;
+		}
+	}
+
+}
+
+
+", "c#")
+                        </p>
+                        <p><img src="../../Content/Images/ArrayAsReference/ComplexTypeSortingbyIComparer.png" alt="" /></p>
+                        <p>Notice that "Suyash" and "Scott" were not sorted in the first output, but sorted based on the employee id in the second output</p>
+                    </li>
+                </ul>
+            </li>
+            <li>LINQ extension methods - <code>using System.Linq</code></li>
+        </ul>
+        <p><img src="../../Content/Images/ArrayAsReference/arraymemebervslinq.png" alt="" /></p>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Collection Interfaces</div>
+    </div>
+    <div class="panel-body">
+        Module Overview
+        <ul>
+            <li>
+                Interface hierarchy
+                <p><img src="../../Content/Images/Interfaces/1.png" alt="" /></p>
+                <ul>
+                    <li>Core generic interfaces</li>
+                    <li>Read-only interfaces</li>
+                    <li>Older non-generic interfaces</li>
+                </ul>
+            </li>
+            <li>
+                Specific interfaces
+                <ul>
+                    <li><code>@Html.Raw(Html.Encode("IEnumerable<T>"))</code></li>
+                    <li><code>@Html.Raw(Html.Encode("ICollection<T>"))</code></li>
+                    <li><code>@Html.Raw(Html.Encode("IList<T>"))</code></li>
+                    <li><code>@Html.Raw(Html.Encode("IDictionary<TKey, TValue>"))</code></li>
+                    <li><code>@Html.Raw(Html.Encode("ISet<T>"))</code></li>
+                </ul>
+            </li>
+            <li>Explicit Implementation</li>
+        </ul>
+    </div>
+</div>
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Core Generic Interfaces</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>
+                <code>@Html.Raw(Html.Encode("IEnumerable<T>"))</code>. It says "You can iterate my elements". Linq hooks in here because most of the Linq extension methods are on <code>@Html.Raw(Html.Encode("IEnumerable<T>"))</code> and its derived types.
+            </li>
+            <li>
+                <code>@Html.Raw(Html.Encode("ICollection<T>"))</code>. It says "I know how many elements i have". A Type which implements this interface is really a collection. This is what represents an in memory data structure that has one or more elements.
+                <p>This differs from an <code>@Html.Raw(Html.Encode("IEnumerable<T>"))</code>. A collection may have an enumerator through which we can iterate over the elements of a collection. It is possible to have a collection which may deny iteration over all the elements. It may only allow other Collection operations like "Looking up for an element" or other Writing operations.</p>
+                <p><code>@Html.Raw(Html.Encode("ICollection<T>"))</code> has a property <code>Count</code> because it is supposed to know and do all the operations on a collection. However, Enumeration is just one of the operation that a collection can have. <code>@Html.Raw(Html.Encode("IEnumerable<T>"))</code> does not have a Count property.</p>
+
+            </li>
+            <li><code>@Html.Raw(Html.Encode("ICollection<T>"))</code> doesn't say anything about the type of collection. Is it an <code>@Html.Raw(Html.Encode("IList<T>"))</code>, an <code>@Html.Raw(Html.Encode("IDictionary<TKey, TValue>"))</code> or an <code>@Html.Raw(Html.Encode("ISet<T>"))</code></li>
+        </ul>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">ReadOnly Interfaces</div>
+    </div>
+    <div class="panel-body">
+        These are new in .NET4.5
+        <ul>
+            <li>
+                <code>@Html.Raw(Html.Encode("IReadOnlyCollection<T>"))</code>
+                It too derives from <code>@Html.Raw(Html.Encode("IEnumerable<T>"))</code> but remember it is only for enumeration and nothing else like modification of collection.
+            </li>
+            <li><code>@Html.Raw(Html.Encode("IReadOnlyList<T>"))</code></li>
+            <li><code>@Html.Raw(Html.Encode("IReadOnlyDictionary<T>"))</code></li>
+            <li>No Read Only collection for Set</li>
+        </ul>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Old Non-Generic Interfaces</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>
+                <code>IEnumerable</code> Only thing worth noticing is that <code>@Html.Raw(Html.Encode("IEnumerable<T>"))</code> is derived from <code>IEnumerable</code>. The reason for this was that you should always be able to cast a generic interface to the old non generic interface as such:
+                @Html.DisplayCode(@"
+IEnumerable<string> genericEnum = // initialize
+IEnumerable old = genericEnum
+", "")
+                <p>Why would we want to do that? Well the answer is backward compatibility.</p>
+            </li>
+            <li><code>ICollection</code></li>
+            <li><code>IList</code></li>
+            <li><code>IDictionary</code></li>
+        </ul>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title"><code>@Html.Raw(Html.Encode("IEnumerable<T>"))</code></div>
+    </div>
+    <div class="panel-body">
+        <p>
+            This just has one member.
+            @Html.DisplayCode(@"
+IEnumerator<T> GetEnumerator()
+", "c#")
+        </p>
+        <p>Only purpose of a type which implements an <code>@Html.Raw(Html.Encode("IEnumerable<T>"))</code> is to provide an <em><strong>enumerator</strong></em>. This enumerator is reponsible to enumerate over the elements</p>
+        <p><code>foreach</code> can enumerate over an <code>@Html.Raw(Html.Encode("IEnumerable<T>"))</code></p>
+        <p>Note: <code>foreach</code> is <em><strong>not restricted</strong></em> to enumerate just the types which are <code>@Html.Raw(Html.Encode("IEnumerable<T>"))</code></p>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title"><code>@Html.Raw(Html.Encode("ICollection<T>"))</code></div>
+    </div>
+    <div class="panel-body">
+        <p><img src="../../Content/Images/Interfaces/2.png" alt="" /></p>
+        <p><code>@Html.Raw(Html.Encode("ICollection<T>"))</code> has a property <code>Count</code> and <code>@Html.Raw(Html.Encode("IEnumerable<T>"))</code> has an extension method <code>Count()</code> provided by <code>System.Linq</code>. This method internally refers to <code>Count</code> property if available.</p>
+        <p>
+            <code>@Html.Raw(Html.Encode("ICollection<T>.IsReadOnly"))</code> lets you know if it is "OK" to add/remove/modify an element
+            @Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+
+namespace BasicArrayOps
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            string[] daysOfWeek = {
+                                      ""Monday"",
+                                      ""Tuesday"",
+                                      ""Wednesday"",
+                                      ""Thursday"",
+                                      ""Friday"",
+                                      ""Saturday"",
+                                      ""Sunday""
+                                  };
+            ICollection<string> daysOfWeekCollection = daysOfWeek;
+
+            if (!daysOfWeekCollection.IsReadOnly)
+            {
+                daysOfWeekCollection.Add(""SlaveDay"");
+            }
+            else
+            {
+                Console.WriteLine(""daysOfWeekCollection is a readonly"");
+            }
+
+            foreach (string dayOfWeek in daysOfWeekCollection)
+            {
+                Console.WriteLine(dayOfWeek);
+            }
+
+            Console.ReadLine();
+        }
+
+    }
+
+}
+
+
+", "c#")<img src="../../Content/Images/Interfaces/3.png" alt="" />
+
+        </p>
+        <p>
+            <code>Add</code> on an <code>@Html.Raw(Html.Encode("ICollection<T>"))</code> is available but may fail if the collection actually is a readOnly. However <code>@Html.Raw(Html.Encode("ICollection<T>.IsReadOnly"))</code> does not restricts the modification of the collection element.
+            @Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+
+namespace BasicArrayOps
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            string[] daysOfWeek = {
+                                      ""Monday"",
+                                      ""Tuesday"",
+                                      ""Wednesday"",
+                                      ""Thursday"",
+                                      ""Friday"",
+                                      ""Saturday"",
+                                      ""Sunday""
+                                  };
+            ICollection<string> daysOfWeekCollection = daysOfWeek;
+
+            (daysOfWeekCollection as string[])[5] = ""Slaveday"";
+
+            foreach (string dayOfWeek in daysOfWeekCollection)
+            {
+                Console.WriteLine(dayOfWeek);
+            }
+
+            Console.ReadLine();
+        }
+
+    }
+
+}
+
+", "c#")<img src="../../Content/Images/Interfaces/4.png" alt="" />
+        </p>
+        <p>Be careful about IsReadOnly property</p>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Explicit Interface Implementation</div>
+    </div>
+    <div class="panel-body">
+        Collection such as an array needs to be explicitly casted to an Interface to have some methods available.
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title"><code>@Html.Raw(Html.Encode("IReadOnlyCollection<T>"))</code></div>
+    </div>
+    <div class="panel-body">
+        <img src="../../Content/Images/Interfaces/5.png" alt="" />
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title"><code>@Html.Raw(Html.Encode("IList<T>"))</code></div>
+    </div>
+    <div class="panel-body">
+        <p>It says "You can look up my elements with an index". So <code>@Html.Raw(Html.Encode("IList<T>"))</code> is a collection that allows element lookup via index. Also the enumerator is available.</p>
+        <p><em><strong>Arrays implement </strong></em><code>@Html.Raw(Html.Encode("IList<T>"))</code></p>
+        <p><img src="../../Content/Images/Interfaces/6.png" alt="" /></p>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title"><code>@Html.Raw(Html.Encode("IReadOnlyList<T>"))</code></div>
+    </div>
+    <div class="panel-body">
+        <p><img src="../../Content/Images/Interfaces/7.png" alt="" /></p>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title"><code>@Html.Raw(Html.Encode("IDictionary<TKey, TValue>"))</code></div>
+    </div>
+    <div class="panel-body">
+        <p>It says "You can look up my elements with a key"</p>
+        <p><img src="../../Content/Images/Interfaces/8.png" alt="" /></p>
+        <p>An <code>@Html.Raw(Html.Encode("IDictionary<TKey, TValue>"))</code> is essentially a collection of <code>@Html.Raw(Html.Encode("KeyValuePair<TKey, TValue>"))</code></p>
+        <p><img src="../../Content/Images/Interfaces/9.png" alt="" /></p>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title"><code>@Html.Raw(Html.Encode("IReadOnlyDictionary<TKey, TValue>"))</code></div>
+    </div>
+    <div class="panel-body">
+        <p><img src="../../Content/Images/Interfaces/10.png" alt="" /></p>
+        <p>indexer is obviously only readonly</p>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title"><code>@Html.Raw(Html.Encode("ISet<T>"))</code></div>
+    </div>
+    <div class="panel-body"><img src="../../Content/Images/Interfaces/11.png" alt="" />
+    </div>
+</div>
