@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>docpanel</Title>
+      <Author>Microsoft Corporation</Author>
+      <Description>A description for docpanel</Description>
+      <HelpUrl>
+      </HelpUrl>
+      <Shortcut>docpanel</Shortcut>
+    </Header>
+    <Snippet>
+      <Declarations>
+        <Literal Editable="true">
+          <ID>titleName</ID>
+          <ToolTip>titleName</ToolTip>
+          <Default>titleName</Default>
+          <Function>
+          </Function>
+        </Literal>
+        <Literal Editable="true">
+          <ID>content</ID>
+          <ToolTip>content</ToolTip>
+          <Default>content</Default>
+          <Function>
+          </Function>
+        </Literal>
+      </Declarations>
+      <Code Language="html" Delimiter="$"><![CDATA[
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">$titleName$</div>
+    </div>
+    <div class="panel-body">
+        $content$
+    </div>
+</div>]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

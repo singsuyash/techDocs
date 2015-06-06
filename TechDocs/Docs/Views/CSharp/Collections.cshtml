@@ -1290,6 +1290,334 @@ namespace BasicArrayOps
     <div class="panel-heading">
         <div class="panel-title"><code>@Html.Raw(Html.Encode("ISet<T>"))</code></div>
     </div>
-    <div class="panel-body"><img src="../../Content/Images/Interfaces/11.png" alt="" />
+    <div class="panel-body">
+        <img src="../../Content/Images/Interfaces/11.png" alt="" />
+    </div>
+</div>
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Lists</div>
+    </div>
+    <div class="panel-body">
+        Overview
+        <ul>
+            <li>
+                <code>@Html.Raw(Html.Encode("List<T>"))</code>
+                <ul>
+                    <li>Extensive API</li>
+                    <li>Like array but with adding/removing elements</li>
+                </ul>
+            </li>
+            <li>
+                <code>@Html.Raw(Html.Encode("ReadOnlyCollection<T>"))</code>
+                <ul>
+                    <li>Read-only wrapper for lists</li>
+                </ul>
+            </li>
+            <li>
+                <code>@Html.Raw(Html.Encode("Collection<T>"))</code>
+                <ul>
+                    <li>Allows lists to be customized</li>
+                </ul>
+            </li>
+            <li>
+                <code>@Html.Raw(Html.Encode("ObservableCollection<T>"))</code>
+                <ul>
+                    <li>List with change notifications</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title"><code>@Html.Raw(Html.Encode("List<T>"))</code></div>
+    </div>
+    <div class="panel-body">
+        <p>It is intended to give you all that an Array offers i.e. High performance, Index based. But with the bonus of Adding and Removing elements</p>
+        <p>
+            I mentioned earlier that internally <code>@Html.Raw(Html.Encode("List<T>"))</code> uses an <code>@Html.Raw(Html.Encode("T[]"))</code>. What happens is that by default <code>@Html.Raw(Html.Encode("List<T>"))</code> references to a <code>@Html.Raw(Html.Encode("T[]"))</code> of size 8. This can be displayed by the <code>@Html.Raw(Html.Encode("List<T>.Capacity"))</code> Property. When we start entering values in this <code>@Html.Raw(Html.Encode("List<T>"))</code>, the <code>@Html.Raw(Html.Encode("List<T>.Count"))</code> property increases it's value. When <code>@Html.Raw(Html.Encode("List<T>.Count"))</code> wants to be greater than <code>@Html.Raw(Html.Encode("List<T>.Capacity"))</code> then the old reference to <code>@Html.Raw(Html.Encode("T[]"))</code> is discarded, starts pointing to another array <code>@Html.Raw(Html.Encode("T2[]"))</code> and the values from <code>@Html.Raw(Html.Encode("T[]"))</code> is copied over to <code>@Html.Raw(Html.Encode("T2[]"))</code>. Now, <code>@Html.Raw(Html.Encode("List<T>.Count"))</code> increases by 1 and <code>@Html.Raw(Html.Encode("List<T>.Capacity"))</code> becomes 16. Let's see this in code.
+            @Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+
+namespace BasicArrayOps
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var squares = new List<int> { 1, 4, 9, 16, 25, 36, 49 };
+            Console.WriteLine(""squares.Count: ""+squares.Count.ToString());
+            Console.WriteLine(""squares.Capacity: ""+squares.Capacity.ToString());
+            Console.ReadLine();
+        }
+
+    }
+}
+
+
+", "c#")<img src="../../Content/Images/List/1.png" alt="" />
+
+        </p>
+        <p>
+            Lets Add 2 more values to the <code>@Html.Raw(Html.Encode("List<int>"))</code> and see the <code>@Html.Raw(Html.Encode("List<int>.Count"))</code> &amp; <code>@Html.Raw(Html.Encode("List<int>.Capacity"))</code> values change.
+            @Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+
+namespace BasicArrayOps
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var squares = new List<int> { 1, 4, 9, 16, 25, 36, 49 };
+            Console.WriteLine(""squares.Count: ""+squares.Count.ToString());
+            Console.WriteLine(""squares.Capacity: ""+squares.Capacity.ToString());
+            Console.WriteLine();
+            squares.Add(64);
+            squares.Add(81);
+            Console.WriteLine(""squares.Count: "" + squares.Count.ToString());
+            Console.WriteLine(""squares.Capacity: "" + squares.Capacity.ToString());
+            Console.ReadLine();
+        }
+
+    }
+
+
+
+
+}
+
+
+", "c#")<img src="../../Content/Images/List/2.png" alt="" />
+        </p>
+        <p>
+            This may lead an idea of retrieving a value at an index that is not filled, but for which the capacity exists. This will throw an <code>ArgumentOutOfRange</code> exception.
+        </p>
+        <p>
+            When we remove an element from the <code>@Html.Raw(Html.Encode("List<T>"))</code> the values after that value iterate till the end and gets copied over to previous index. If the value to be removed is at around the end, the operation will be faster. But if the value to be removed is at beginning, it will take a lot of time.
+        </p>
+        <p>
+            To avoid increasing <code>@Html.Raw(Html.Encode("List<T>.Capacity"))</code> when we keep adding elements to the list, in case we already know an approximate number of elements that the list is about to have, we can initialize our list with an initial value of <code>Capacity</code>.
+            @Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+
+namespace BasicArrayOps
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var squares = new List<int>(12) { 1, 4, 9, 16, 25, 36, 49 };
+            Console.WriteLine(""squares.Count: ""+squares.Count.ToString());
+            Console.WriteLine(""squares.Capacity: ""+squares.Capacity.ToString());
+            Console.ReadLine();
+        }
+
+    }
+
+
+
+
+}
+
+
+", "c#")<img src="../../Content/Images/List/3.png" alt="" />
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title"><code>AsReadOnly()</code> and <code><code>@Html.Raw(Html.Encode("ReadOnlyCollection<T>"))</code></code></div>
+    </div>
+    <div class="panel-body">
+        <p>
+            <code>AsReadOnly()</code> can return a <code>@Html.Raw(Html.Encode("List<T>"))</code> which will be readOnly. Let's see this in code.
+            @Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+
+namespace BasicArrayOps
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var squares = new List<int>(12) { 1, 4, 9, 16, 25, 36, 49 };
+
+            var copy = squares.ToArray();//This provides a copy of my list but consider a list of million elements that will take a lot of time to get copied over
+
+            //Instead use AsReadOnly() which without copying will just make the list Read Only for copy2
+
+            var copy2 = squares.AsReadOnly();//Notice this returns a ReadOnlyCollection<int>
+            var copy3 = new ReadOnlyCollection<int>(squares);//Another way to initialize a ReadOnlyCollection<int>
+
+            //Trying to change a value
+            copy2[0] = 0; // Throws a Compile time error.
+
+            Console.ReadLine();
+        }
+    }
+}
+
+
+", "c#")
+        </p>
+        <p>
+            <code>@Html.Raw(Html.Encode("ReadOnlyCollection<T>"))</code> is actually a Read Only <code>@Html.Raw(Html.Encode("List<T>"))</code> so the name ReadOnly<strong>Collection</strong> is a bit misleading.
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title"><code>@Html.Raw(Html.Encode("Collection<T>"))</code></div>
+    </div>
+    <div class="panel-body">
+        <p><img src="../../Content/Images/Collection/1.png" alt="" /></p>
+        <p>
+            <code>@Html.Raw(Html.Encode("List<T>"))</code> methods can not be overriden. But <code>@Html.Raw(Html.Encode("Collection<T>"))</code> makes it possible to override some operations like what else should happen when an element is added/removed etc. Let's take an example of a Collection that only allows Non-Blank strings. Let's see this in code
+        </p>
+        <p><img src="../../Content/Images/Collection/2.png" alt="" /></p>
+        <p>
+            <code>InsertItem</code> &amp; <code>SetItem</code> are virtual methods.
+        </p>
+        <p>
+            <img src="../../Content/Images/Collection/3.png" alt="" />
+        </p>
+        <p>
+            The Interface methods <code>Add(T item)</code>, <code>Insert()</code> etc. that come as a contract from the interfaces like <code>@Html.Raw(Html.Encode("IList<T>"))</code> internally call <code>InsertItem(int index, T item)</code> which is provided as an extensibility point by <code>@Html.Raw(Html.Encode("Collection<T>"))</code>. So i can create another class that inherits from <code>@Html.Raw(Html.Encode("Collection<T>"))</code> and override these extensibility points. Lets see this in code.
+            @Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+
+namespace BasicArrayOps
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            NonBlankStringList lst = new NonBlankStringList();
+            lst.Add(""Item added at index 0"");
+            lst.Add(String.Empty);//Throws exception
+            lst[0] = "" "";//Throws exception
+
+            Console.ReadLine();
+        }
+    }
+
+    public class NonBlankStringList : Collection<string>
+    {
+        protected override void InsertItem(int index, string item)
+        {
+            if (String.IsNullOrWhiteSpace(item))
+            {
+                throw new ArgumentException(""Elements of NonBlankStringList must not be null or whitespace"");
+            }
+            base.InsertItem(index, item);
+        }
+
+        protected override void SetItem(int index, string item)
+        {
+            if (String.IsNullOrWhiteSpace(item))
+            {
+                throw new ArgumentException(""Elements of NonBlankStringList must not be null or whitespace"");
+            }
+            base.SetItem(index, item);
+        }
+    }
+}
+
+
+", "c#")
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title"><code>@Html.Raw(Html.Encode("ObservableCollection<T>"))</code></div>
+    </div>
+    <div class="panel-body">
+        <p>It is designed to be a List that provides change notifications if anything in the list changes.</p>
+        <p>
+@Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+
+namespace BasicArrayOps
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            ObservableCollection<string> presidents = new ObservableCollection<string>{
+                ""Jimmy Carter"",
+                ""Ronald Reagan"",
+                ""G W Bush""
+            };
+
+            foreach (var president in presidents)
+            {
+                Console.WriteLine(president);
+            }
+
+            presidents.CollectionChanged += presidents_CollectionChanged;
+
+            presidents[0] = ""Bill Clinton"";
+
+            Console.ReadLine();
+        }
+
+        static void presidents_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            Console.WriteLine();
+            Console.WriteLine(""President Changed"");
+            Console.WriteLine();
+        }
+    }
+
+    
+}
+
+
+", "c#")
+        </p>
+        <p><img src="../../Content/Images/Collection/4.png" alt="" /></p>
+        <p><code>@Html.Raw(Html.Encode("ObservableCollection<T>"))</code> actually uses the extensibility points offered by <code>@Html.Raw(Html.Encode("Collection<T>"))</code></p>
+    </div>
+</div>
+
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Linked Lists, Stacks and Queues</div>
+    </div>
+    <div class="panel-body">
+        <p>They are lists but they don't provide index based element lookup because they are designed for specific data structures which are Linked Lists, Stacks and Queues</p>
+        <p><img src="../../Content/Images/LinkedListStackQueue/1.png" alt="" /></p>
+        <p><code>@Html.Raw(Html.Encode("LinkedList<T>"))</code> are used for the scenarios where a lot of Adding or Removing of elements happen</p>
+        <p><code>@Html.Raw(Html.Encode("LinkedList<T>"))</code> allows to insert an element in between. But so does <code>@Html.Raw(Html.Encode("List<T>.Insert"))</code> method. The reason we would favor <code>@Html.Raw(Html.Encode("LinkedList<T>"))</code> is that it takes very few operations (4) to insert an element in between</p>
+        <p><img src="../../Content/Images/LinkedListStackQueue/2.png" alt="" /></p>
+        
+        <p>
+            <div><code>@Html.Raw(Html.Encode("LinkedList<T>"))</code> &amp; <code>@Html.Raw(Html.Encode("LinkedListNode<T>"))</code></div>
+        </p>
+        <p><code>@Html.Raw(Html.Encode("LinkedListNode<T>"))</code> is required for adding items to a linked list</p>
+        <p>Collection Initializer is not available for <code>@Html.Raw(Html.Encode("LinkedList<T>"))</code></p>
+        <p><img src="../../Content/Images/LinkedListStackQueue/3.png" alt="" /></p>
+        <p><code>@Html.Raw(Html.Encode("Stack<T>"))</code> is a wrapper around <code>T[]</code></p>
+        <p><code>@Html.Raw(Html.Encode("Queue<T>"))</code> is a little more complex wrapper around <code>T[]</code></p>
     </div>
 </div>
