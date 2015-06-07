@@ -1550,7 +1550,7 @@ namespace BasicArrayOps
     <div class="panel-body">
         <p>It is designed to be a List that provides change notifications if anything in the list changes.</p>
         <p>
-@Html.DisplayCode(@"
+            @Html.DisplayCode(@"
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -1587,7 +1587,7 @@ namespace BasicArrayOps
         }
     }
 
-    
+
 }
 
 
@@ -1610,7 +1610,7 @@ namespace BasicArrayOps
         <p><code>@Html.Raw(Html.Encode("LinkedList<T>"))</code> are used for the scenarios where a lot of Adding or Removing of elements happen</p>
         <p><code>@Html.Raw(Html.Encode("LinkedList<T>"))</code> allows to insert an element in between. But so does <code>@Html.Raw(Html.Encode("List<T>.Insert"))</code> method. The reason we would favor <code>@Html.Raw(Html.Encode("LinkedList<T>"))</code> is that it takes very few operations (4) to insert an element in between</p>
         <p><img src="../../Content/Images/LinkedListStackQueue/2.png" alt="" /></p>
-        
+
         <p>
             <div><code>@Html.Raw(Html.Encode("LinkedList<T>"))</code> &amp; <code>@Html.Raw(Html.Encode("LinkedListNode<T>"))</code></div>
         </p>
@@ -1619,5 +1619,689 @@ namespace BasicArrayOps
         <p><img src="../../Content/Images/LinkedListStackQueue/3.png" alt="" /></p>
         <p><code>@Html.Raw(Html.Encode("Stack<T>"))</code> is a wrapper around <code>T[]</code></p>
         <p><code>@Html.Raw(Html.Encode("Queue<T>"))</code> is a little more complex wrapper around <code>T[]</code></p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Dictionaries</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>
+                <code>@Html.Raw(Html.Encode("Dictionary<TKey, TValue>"))</code>
+                <ul>
+                    <li>General purpose dictionary</li>
+                </ul>
+            </li>
+            <li><code>@Html.Raw(Html.Encode("ReadOnlyDictionary<TKey, TValue>"))</code></li>
+            <li>
+                <code>@Html.Raw(Html.Encode("SortedList<TKey, TValue>"))</code> &amp; <code>@Html.Raw(Html.Encode("SortedDictionary<TKey, TValue>"))</code>
+                <ul>
+                    <li>Dictionaries that sort their elements</li>
+                </ul>
+            </li>
+            <li>
+                <code>@Html.Raw(Html.Encode("KeyedCollection<TKey, TValue>"))</code>
+                <ul>
+                    <li>Customizable</li>
+                </ul>
+            </li>
+            <li>
+                Hash tables
+                <ul>
+                    <li>Hash codes</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title"><code>@Html.Raw(Html.Encode("Dictionary<TKey, TValue>"))</code></div>
+    </div>
+    <div class="panel-body">
+        <p>Just a basic implementation of <code>@Html.Raw(Html.Encode("IDictionary<TKey, TValue>"))</code></p>
+        <p>
+            General Working, Let's see the code
+            @Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+
+namespace BasicArrayOps
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var harryPotterMovies = new Dictionary<String, HarryPotterMovie>()
+            {
+                {""PS"",  new HarryPotterMovie{Name=""Harry Potter and the Philosopher's Stone"", ReleaseYear=2001}},
+                {""CS"",  new HarryPotterMovie{Name = ""Harry Potter and the Chamber of Secrets"", ReleaseYear=2002}},
+                {""PA"",  new HarryPotterMovie{Name = ""Harry Potter and the Prisoner of Azkaban"", ReleaseYear=2004}},
+                {""GF"",  new HarryPotterMovie{Name=""Harry Potter and the Goblet of Fire"", ReleaseYear=2005}},
+                {""DH1"", new HarryPotterMovie{Name=""Harry Potter and the Deathly Hallows: Part 1"", ReleaseYear=2010}}
+            };
+
+            foreach (var item in harryPotterMovies)
+            {
+                Console.WriteLine(item);
+            }
+
+            Console.ReadLine();
+        }
+    }
+
+    public class HarryPotterMovie
+    {
+        public String Name { get; set; }
+        public Int32 ReleaseYear { get; set; }
+
+        public HarryPotterMovie()
+        {
+
+        }
+
+        public HarryPotterMovie(String _name, Int32 _releaseYear)
+        {
+            Name = _name;
+            ReleaseYear = _releaseYear;
+        }
+
+        public override string ToString()
+        {
+            return String.Format(""{0}, Release: {1}"", Name, ReleaseYear);
+        }
+    }
+}
+
+
+", "c#")<img src="../../Content/Images/Dictionary/1.png" alt="" />
+        </p>
+        <p>
+            Notice the output is specially formatted with square brackets. This is because the element in the <code>foreach</code> loop is a <code>@Html.Raw(Html.Encode("KeyValuePair<TKey, TValue>"))</code> whose <code>ToString()</code> method is overridden to display key and value within square brackets.
+        </p>
+        <p>
+            In case we want to access somthing that is not available in the Dictionary, a <code>KeyNotFoundException</code> exception is thrown. To avoid this exception we use the <code>TryGetValue</code> method. Let's see this in code.
+            @Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+
+namespace BasicArrayOps
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var harryPotterMovies = new Dictionary<String, HarryPotterMovie>()
+            {
+                {""PS"",  new HarryPotterMovie{Name=""Harry Potter and the Philosopher's Stone"", ReleaseYear=2001}},
+                {""CS"",  new HarryPotterMovie{Name = ""Harry Potter and the Chamber of Secrets"", ReleaseYear=2002}},
+                {""PA"",  new HarryPotterMovie{Name = ""Harry Potter and the Prisoner of Azkaban"", ReleaseYear=2004}},
+                {""GF"",  new HarryPotterMovie{Name=""Harry Potter and the Goblet of Fire"", ReleaseYear=2005}},
+                {""DH1"", new HarryPotterMovie{Name=""Harry Potter and the Deathly Hallows: Part 1"", ReleaseYear=2010}}
+            };
+
+            foreach (var item in harryPotterMovies)
+            {
+                Console.WriteLine(item);
+            }
+
+            Console.WriteLine();
+
+            Console.WriteLine(harryPotterMovies[""DH2""]);// KeyNotFound Exception
+
+            HarryPotterMovie movie;
+            var found = harryPotterMovies.TryGetValue(""DH2"", out movie);
+            if (found)
+            {
+                Console.WriteLine(""{0}, Release: {1}"", movie.Name, movie.ReleaseYear);
+            }
+            else
+            {
+                Console.WriteLine(""Movie not found"");
+            }
+
+
+            Console.ReadLine();
+        }
+    }
+
+    public class HarryPotterMovie
+    {
+        public String Name { get; set; }
+        public Int32 ReleaseYear { get; set; }
+
+        public HarryPotterMovie()
+        {
+
+        }
+
+        public HarryPotterMovie(String _name, Int32 _releaseYear)
+        {
+            Name = _name;
+            ReleaseYear = _releaseYear;
+        }
+
+        public override string ToString()
+        {
+            return String.Format(""{0}, Release: {1}"", Name, ReleaseYear);
+        }
+    }
+}
+
+
+", "c#")<img src="../../Content/Images/Dictionary/2.png" alt="" />
+        </p>
+        <p>
+            Adding/Modifying/Removing the <code>@Html.Raw(Html.Encode("Dictionary<TKey, TValue>"))</code>
+            Let's see this in code.
+            @Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+
+namespace BasicArrayOps
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var harryPotterMovies = new Dictionary<String, HarryPotterMovie>()
+            {
+                {""PS"",  new HarryPotterMovie{Name=""Harry Potter and the Philosopher's Stone"", ReleaseYear=2001}},
+                {""CS"",  new HarryPotterMovie{Name = ""Harry Potter and the Chamber of Secrets"", ReleaseYear=2002}},
+                {""PA"",  new HarryPotterMovie{Name = ""Harry Potter and the Prisoner of Azkaban"", ReleaseYear=2004}},
+                {""GF"",  new HarryPotterMovie{Name=""Harry Potter and the Goblet of Fire"", ReleaseYear=2005}},
+                {""DH1"", new HarryPotterMovie{Name=""Harry Potter and the Deathly Hallows: Part1"", ReleaseYear=2010}}
+            };
+
+
+
+            harryPotterMovies.Add(""DH2"", new HarryPotterMovie { Name = ""Harry Potter and the Deathly Hallows: Part2"", ReleaseYear = 2011 });// This will add the value.
+
+            harryPotterMovies[""DH2""] = new HarryPotterMovie { Name = ""Harry Potter and the Deathly Hallows: Part2"", ReleaseYear = 2011 };// Indexer can add a value
+
+            harryPotterMovies[""DH1""] = new HarryPotterMovie { Name = ""Harry Potter and the Deathly Hallows: The First Part"", ReleaseYear = 2011 };// Indexer can also change the value
+
+            harryPotterMovies.Add(""DH1"", new HarryPotterMovie { Name = ""Foo"", ReleaseYear = 2015 }); //This throws an ArgumentException because a dictionary must have unique Keys
+
+            harryPotterMovies.Remove(""DH1"");//This will remove the Dictionary element with the Key ""DH1""
+
+            foreach (var item in harryPotterMovies)
+            {
+                Console.WriteLine(item);
+            }
+
+            Console.ReadLine();
+        }
+    }
+
+    public class HarryPotterMovie
+    {
+        public String Name { get; set; }
+        public Int32 ReleaseYear { get; set; }
+
+        public HarryPotterMovie()
+        {
+
+        }
+
+        public HarryPotterMovie(String _name, Int32 _releaseYear)
+        {
+            Name = _name;
+            ReleaseYear = _releaseYear;
+        }
+
+        public override string ToString()
+        {
+            return String.Format(""{0}, Release: {1}"", Name, ReleaseYear);
+        }
+    }
+}
+
+
+", "c#")
+        </p>
+        <p>Note that a dictionary must have unique keys.</p>
+        <p><code>@Html.Raw(Html.Encode("Dictionary<TKey, TValue>.Keys"))</code> &amp; <code>@Html.Raw(Html.Encode("Dictionary<TKey, TValue>.Values"))</code> are enumerable collections. They can be used when you are working with a dictionary provided by a third party</p>
+        <p><strong>Keys of <code>@Html.Raw(Html.Encode("Dictionary<Tkey, TValue>"))</code> are case sensitive</strong></p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Comparing Keys with <code>@Html.Raw(Html.Encode("IEqualityComparer<T>"))</code></div>
+    </div>
+    <div class="panel-body">
+        <p>
+            <strong>Keys of <code>@Html.Raw(Html.Encode("Dictionary<Tkey, TValue>"))</code> are case sensitive</strong>. So trying to access a dictionary element by providing a key with wrong casing will throw an exception.
+        </p>
+        <p>
+            To fix this we need to use an overload of <code>@Html.Raw(Html.Encode("Dictionary<TKey, TValue>"))</code> which accepts an <code>@Html.Raw(Html.Encode("IEqualityComparer<T>"))</code>. Microsoft provides one such comparer by the <code>StringComparer</code> class. <code>StringComparer</code> has several static methods one of which is <code>StringComparer.InvariantCultureIgnoreCase</code> which creates a <code>@Html.Raw(Html.Encode("Dictionary<TKey, TValue>"))</code> with case insensitive keys. Let's see this in code
+            @Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+
+namespace BasicArrayOps
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var harryPotterMovies = new Dictionary<String, HarryPotterMovie>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                {""PS"",  new HarryPotterMovie{Name=""Harry Potter and the Philosopher's Stone"", ReleaseYear=2001}},
+                {""CS"",  new HarryPotterMovie{Name = ""Harry Potter and the Chamber of Secrets"", ReleaseYear=2002}},
+                {""PA"",  new HarryPotterMovie{Name = ""Harry Potter and the Prisoner of Azkaban"", ReleaseYear=2004}},
+                {""GF"",  new HarryPotterMovie{Name=""Harry Potter and the Goblet of Fire"", ReleaseYear=2005}},
+                {""DH1"", new HarryPotterMovie{Name=""Harry Potter and the Deathly Hallows: Part1"", ReleaseYear=2010}}
+            };
+
+
+            Console.WriteLine(harryPotterMovies[""ps""]);//No exception thrown when dictionary is constructed using StringComparer.InvariantCultureIgnoreCase
+
+
+            Console.ReadLine();
+        }
+    }
+
+    public class HarryPotterMovie
+    {
+        public String Name { get; set; }
+        public Int32 ReleaseYear { get; set; }
+
+        public HarryPotterMovie()
+        {
+
+        }
+
+        public HarryPotterMovie(String _name, Int32 _releaseYear)
+        {
+            Name = _name;
+            ReleaseYear = _releaseYear;
+        }
+
+        public override string ToString()
+        {
+            return String.Format(""{0}, Release: {1}"", Name, ReleaseYear);
+        }
+    }
+}
+
+
+", "c#")
+        </p>
+        <p>
+            But in any case lets create our own <code>@Html.Raw(Html.Encode("IEqualityComparer<T>"))</code>. Before we we implement our own <code>@Html.Raw(Html.Encode("IEqualityComparer<T>"))</code> let's see the interface once:
+        </p>
+        <p><img src="../../Content/Images/Dictionary/3.png" alt="" /></p>
+        <p>
+            We see a method <code>GetHashCode</code>. To understand this we first need to understand how a <code>@Html.Raw(Html.Encode("Dictionary<TKey, TValue>"))</code> works internally.
+            <ul>
+                <li>
+                    A <code>@Html.Raw(Html.Encode("Dictionary<TKey, TValue>"))</code> has a lot of buckets in which the <code>@Html.Raw(Html.Encode("KeyValuePair<TKey, TValue>"))</code> are kept.
+                </li>
+                <li>
+                    When a new <code>@Html.Raw(Html.Encode("KeyValuePair<TKey, TValue>"))</code> is added to the dictionary, it is passed through <em><strong>Some Algorithm</strong></em> which decides the bucket for this <code>@Html.Raw(Html.Encode("KeyValuePair<TKey, TValue"))</code>.
+                </li>
+                <li>One bucket can contain many <code>@Html.Raw(Html.Encode("KeyValuePair<TKey, TValue>"))</code> and the <code>@Html.Raw(Html.Encode("Dictionary<TKey, TValue>"))</code> can contain many buckets</li>
+                <li>These buckets internally implement <code>@Html.Raw(Html.Encode("LinkedList<T>"))</code> so overall adding/removing of a <code>@Html.Raw(Html.Encode("KeyValuePair<TKey, TValue>"))</code> is very fast</li>
+                <li>On Key Lookup the key is passed to the <em><strong>Some Algorithm</strong></em> to identify the bucket. Key lookup happens in the bucket one by one and when found it is returned.</li>
+                <li>This <em><strong>Some Algorithm</strong></em> actually uses the <code>Object.GetHashCode()</code> to identify the bucket. In fact every object in c# has <code>GetHashCode()</code> so that it can be used to insert and identify an object in hash-based collection such as the <code>@Html.Raw(Html.Encode("Dictionary<TKey, TValue>"))</code>, the <code>Hashtable</code> class or a type derived from the <code>DictionaryBase</code> class. HashCode is a numeric value.</li>
+            </ul>
+        </p>
+        <p>
+            Coming back to our <code>@Html.Raw(Html.Encode("IEqualityComparer<T>"))</code>. Lets see the code.
+            @Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+
+namespace BasicArrayOps
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var harryPotterMovies = new Dictionary<String, HarryPotterMovie>(new UncasedStringEqualityComparer())
+            {
+                {""PS"",  new HarryPotterMovie{Name=""Harry Potter and the Philosopher's Stone"", ReleaseYear=2001}},
+                {""CS"",  new HarryPotterMovie{Name = ""Harry Potter and the Chamber of Secrets"", ReleaseYear=2002}},
+                {""PA"",  new HarryPotterMovie{Name = ""Harry Potter and the Prisoner of Azkaban"", ReleaseYear=2004}},
+                {""GF"",  new HarryPotterMovie{Name=""Harry Potter and the Goblet of Fire"", ReleaseYear=2005}},
+                {""DH1"", new HarryPotterMovie{Name=""Harry Potter and the Deathly Hallows: Part1"", ReleaseYear=2010}}
+            };
+
+
+            Console.WriteLine(harryPotterMovies[""ps""]);//No exception thrown when dictionary is constructed using StringComparer.InvariantCultureIgnoreCase
+
+
+            Console.ReadLine();
+        }
+    }
+
+    public class HarryPotterMovie
+    {
+        public String Name { get; set; }
+        public Int32 ReleaseYear { get; set; }
+
+        public HarryPotterMovie()
+        {
+
+        }
+
+        public HarryPotterMovie(String _name, Int32 _releaseYear)
+        {
+            Name = _name;
+            ReleaseYear = _releaseYear;
+        }
+
+        public override string ToString()
+        {
+            return String.Format(""{0}, Release: {1}"", Name, ReleaseYear);
+        }
+    }
+
+    public class UncasedStringEqualityComparer : IEqualityComparer<String>
+    {
+
+        public bool Equals(string x, string y)
+        {
+            return x.ToUpper() == y.ToUpper();
+        }
+
+        public int GetHashCode(string obj)
+        {
+            return obj.GetHashCode();
+        }
+    }
+}
+
+
+", "c#")
+        </p>
+        <p>But this code throws an exception "KeyNotFound". What happened?</p>
+        <p>
+            Well we know that <code>"PS"</code> &amp; <code>"ps"</code> are essentially 2 different strings. So, <code>("PS").GetHashCode()</code> &amp; <code>("ps").GetHashCode()</code> will be different. When we added <code>PS</code> to our Dictionary, the <em><strong>Some Algorithm</strong></em> used <code>("PS").GetHashCode()</code> and moved the value to <em><strong>Bucket1</strong></em>. On Lookup <em><strong>Some Algorithm</strong></em> will produce a different value for <code>("ps").GetHashCode()</code> and will lookup in another <em><strong>Bucket2</strong></em>. So a <code>KeyNotFound</code> exception.
+        </p>
+        <p>
+            So, in our custom <code>@Html.Raw(Html.Encode("IEqualityComparer<T>"))</code> we will implement <code>GetHashCode()</code> as such:
+            @Html.DisplayCode(@"
+return obj.ToUpper().GetHashCode();
+", "c#")
+        </p>
+        <p>And now if we run our code, it works just fine!</p>
+        <p>
+            Something about HashCodes
+            <ul>
+                <li>If two objects are equal, they must return the same hash code</li>
+            </ul>
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title"><code>@Html.Raw(Html.Encode("ReadOnlyDictionary<TKey, TValue>"))</code></div>
+    </div>
+    <div class="panel-body">
+        <p>Wrapper around <code>@Html.Raw(Html.Encode("Dictionary<TKey, TValue>"))</code> with only read only properties</p>
+        <p><code>Add</code> method is not exposed</p>
+        <p>To initialize it pass the <code>@Html.Raw(Html.Encode("Dictionary<TKey, TValue>"))</code> to the constructor.</p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title"><code>@Html.Raw(Html.Encode("SortedList<TKey, TValue>"))</code></div>
+    </div>
+    <div class="panel-body">
+        <p>Similar as dictionary, but on enumeration it will output elements in a sorted order of the Key.</p>
+        <p>The name contains "List", but it is actually a "Dictionary". The name contains "List" because remember List is something that has something to do with the order.</p>
+        <p>Modifications are slow because on adding/removing the list needs to get sorted again.</p>
+        <p>Pass other collections to initialize</p>
+        <p>Constructor accepts an <code>@Html.Raw(Html.Encode("IComparer<T>"))</code>. We have already seen how to create an <code>@Html.Raw(Html.Encode("IComparer<T>"))</code></p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title"><code>@Html.Raw(Html.Encode("SortedDictionary<TKey, TValue>"))</code></div>
+    </div>
+    <div class="panel-body">
+        <p>
+            In terms of functionality <code>@Html.Raw(Html.Encode("SortedDictionary<TKey, TValue>"))</code> is exactly same as <code>@Html.Raw(Html.Encode("SortedList<TKey, TValue>"))</code>
+        </p>
+        <p>
+            The difference is in the internal implementation. <code>@Html.Raw(Html.Encode("SortedDictionary<TKey, TValue>"))</code> uses a data structure called "Balanced Tree"
+        </p>
+        <p>Faster than <code>@Html.Raw(Html.Encode("SortedList<TKey, TValue>"))</code> in terms of adding/removing/modifying/lookup</p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title"><code>@Html.Raw(Html.Encode("KeyedCollection<TKey, TValue>"))</code></div>
+    </div>
+    <div class="panel-body">
+        <p><img src="../../Content/Images/Dictionary/4.png" alt="" /></p>
+        <p>
+            Notice the Key is being repeated in both the Key and the Value. Change the code as per below:
+        </p>
+        <p><img src="../../Content/Images/Dictionary/5.png" alt="" /></p>
+        <p><img src="../../Content/Images/Dictionary/6.png" alt="" /></p>
+        <p>This is not the only reason why we use <code>@Html.Raw(Html.Encode("KeyedCollection<TKey, TValue"))</code>. We want to use it because our Dictionary is now customizable. See the overridable methods.</p>
+        <p>It is not only a Dictionary. It is a List too!!. This means as well as looking up for element by Key, we can also look up by key. This results in a problem when the key is int. If we cast it to a List and then use the indexer for lookup using int indexes, it works.</p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Sets</div>
+    </div>
+    <div class="panel-body">
+        Module Overview
+        <ul>
+            <li><code>@Html.Raw(Html.Encode("HashSet<T>"))</code></li>
+            <li><code>@Html.Raw(Html.Encode("SortedSet<T>"))</code></li>
+            <li>
+                The <code>@Html.Raw(Html.Encode("ISet<T>"))</code>
+                <ul>
+                    <li>Set Operations</li>
+                    <li>Set comparisons</li>
+                </ul>
+            </li>
+            <li>Uniqueness of Elements</li>
+        </ul>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title"><code>@Html.Raw(Html.Encode("HashSet<T>"))</code></div>
+    </div>
+    <div class="panel-body">
+        <p>
+            <code>@Html.Raw(Html.Encode("HashSet<T>"))</code> is a set as it implements <code>@Html.Raw(Html.Encode("ISet<T>"))</code>. But is is important for another reason. It represents a collection that has no exposed property of order or location of an element. It just represents what a collection contains and what it doesn't. Well, this can be done by a <code>@Html.Raw(Html.Encode("List<T>"))</code> too. But remember a <code>@Html.Raw(Html.Encode("List<T>"))</code> can have duplicate values; wheras a <code>@Html.Raw(Html.Encode("HashSet<T>"))</code> will not. It provides uniqueness.
+        </p>
+        <p>
+            Its internal implementation is somewhat like a <code>@Html.Raw(Html.Encode("Dictionary<TKey, TValue"))</code>. i.e. buckets. Only difference is that the buckets have values not keys.
+        </p>
+        <p>
+            Let's see the code
+            @Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+
+namespace BasicArrayOps
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var cities = new List<string>()
+            {
+                ""Delhi"",
+                ""Mumbai"",
+                ""Chennai"",
+                ""Kolkata""
+            };
+
+            cities.Add(""Kolkata"");
+
+            foreach (var item in cities)
+            {
+                Console.WriteLine(item);
+            }
+
+            Console.WriteLine();
+
+            var hashCities = new HashSet<string>()
+            {
+                ""Delhi"",
+                ""Mumbai"",
+                ""Chennai"",
+                ""Kolkata""
+            };
+
+            hashCities.Add(""Kolkata"");
+
+            foreach (var item in hashCities)
+            {
+                Console.WriteLine(item);
+            }
+
+            Console.ReadLine();
+        }
+    }
+
+
+}
+
+
+", "c#")
+        </p>
+        <p><img src="../../Content/Images/Set/1.png" alt="" /></p>
+        <p>If you notice adding another "Kolkata" didn't throw an error. a <code>@Html.Raw(Html.Encode("HashSet<T>"))</code> checks the bucket if the value already exists or not. Adds if not. So there is Good performance for checking if an element is already in the set.</p>
+        <p>So there is a guarantee that there can not be a value more than once in a <code>@Html.Raw(Html.Encode("HashSet<T>"))</code></p>
+        <p>
+            The <code>@Html.Raw(Html.Encode("HashSet<T>.Add"))</code> method returns a <code>Boolean</code> that represents if the value was added or not(based on if it already existed in the bucket or not)
+        </p>
+        <p>Another business issue can be that "Mumbai" &amp; "mumbai" are 2 different strings for <code>@Html.Raw(Html.Encode("HashSet<T>"))</code>. To avoid this there is an extensibility point. Provide an <code>@Html.Raw(Html.Encode("IEqualityComparer<T>"))</code> to the constructor.</p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title"><code>Intersection</code> and <code>IntersectsWith()</code></div>
+    </div>
+    <div class="panel-body">
+        <p><code>IntersetsWith()</code> modifies the set inline and accepts any collection as the 2nd parameter</p>
+        <p><code>Intersection</code> is a <code>System.Linq</code> extension method. It returns a new Enumerable. This works with any collection and not just <code>@Html.Raw(Html.Encode("HashSet<T>"))</code></p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Union, Difference and Symmetric Difference</div>
+    </div>
+    <div class="panel-body">
+        <p><code>Union</code> &amp; <code>UnionWith</code></p>
+        <p><code>SymmetricExceptWith</code>: Find values that are in ONLY ONE collection</p>
+        <p><code>ExceptWith, Except</code>: Find values that are n ONLY THE FIRST collection</p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Comparing Elements and <code>SetEquals()</code></div>
+    </div>
+    <div class="panel-body">
+        <p><img src="../../Content/Images/Set/2.png" alt="" /></p>
+        <p><img src="../../Content/Images/Set/3.png" alt="" /></p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Set Comparisons and Subsets</div>
+    </div>
+    <div class="panel-body">
+        <img src="../../Content/Images/Set/4.png" alt="" />
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title"><code>@Html.Raw(Html.Encode("SoretedSet<T>"))</code></div>
+    </div>
+    <div class="panel-body">
+        <p><img src="../../Content/Images/Set/5.png" alt="" /></p>
+        <p>Instead of using a Hashset, it uses a balanced tree</p>
+        <p>Enumerating elements gives them in order</p>
+        <p>To distinguish between upper case and lower case, pass a <code>@Html.Raw(Html.Encode("IComparer<T>"))</code></p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Enumerators</div>
+    </div>
+    <div class="panel-body">
+        <p>
+            Notice for every collection, <code>foreach</code> works in the same way.
+        </p>
+        <p>
+            <ul>
+                <li>
+                    Iterating under the hood
+                    <ul>
+                        <li><code>@Html.Raw(Html.Encode("IEnumerable<T>"))</code></li>
+                        <li><code>@Html.Raw(Html.Encode("IEnumerator<T>"))</code></li>
+                    </ul>
+                </li>
+                <li>the <code>foreach</code> loop : How it works using enumerators</li>
+                <li>Enumerating collections that change</li>
+                <li>Writing your own enumerators</li>
+                <li>Enumerator covariance</li>
+            </ul>
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Enumerators and <code>@Html.Raw(Html.Encode("IEnumerator<T>"))</code></div>
+    </div>
+    <div class="panel-body">
+        <p>
+            The only contract of <code>@Html.Raw(Html.Encode("IEnumerable<T>"))</code> is <code>GetEnumerator()</code>. It will be the job of this enumerator to enumerte over.
+        </p>
+        <p><code>MoveNext()</code> will iterate and <code>Current</code> will get the current element. <code>MoveNext()</code> returns a <code>Boolean</code>. <code>true</code> if it has moved successfully to the next item</p>
+        <p>There is no specific order in which the items will be returned.</p>
+        <p><img src="../../Content/Images/Enumerator/1.png" alt="" /></p>
+        <p><img src="../../Content/Images/Enumerator/2.png" alt="" /></p>
     </div>
 </div>

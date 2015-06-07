@@ -179,6 +179,12 @@
     <Content Include="Content\Images\Collection\2.png" />
     <Content Include="Content\Images\Collection\3.png" />
     <Content Include="Content\Images\Collection\4.png" />
+    <Content Include="Content\Images\Dictionary\1.png" />
+    <Content Include="Content\Images\Dictionary\2.png" />
+    <Content Include="Content\Images\Dictionary\3.png" />
+    <Content Include="Content\Images\Dictionary\4.png" />
+    <Content Include="Content\Images\Dictionary\5.png" />
+    <Content Include="Content\Images\Dictionary\6.png" />
     <Content Include="Content\Images\EF1.png" />
     <Content Include="Content\Images\EF10.png" />
     <Content Include="Content\Images\EF2.png" />
@@ -192,6 +198,8 @@
     <Content Include="Content\Images\EF9.png" />
     <Content Include="Content\Images\email.png" />
     <Content Include="Content\Images\enumerationOutput.png" />
+    <Content Include="Content\Images\Enumerator\1.png" />
+    <Content Include="Content\Images\Enumerator\2.png" />
     <Content Include="Content\Images\facebook.png" />
     <Content Include="Content\Images\foreachtofor.png" />
     <Content Include="Content\Images\Interfaces\1.png" />
@@ -212,6 +220,11 @@
     <Content Include="Content\Images\List\1.png" />
     <Content Include="Content\Images\List\2.png" />
     <Content Include="Content\Images\List\3.png" />
+    <Content Include="Content\Images\Set\1.png" />
+    <Content Include="Content\Images\Set\2.png" />
+    <Content Include="Content\Images\Set\3.png" />
+    <Content Include="Content\Images\Set\4.png" />
+    <Content Include="Content\Images\Set\5.png" />
     <Content Include="Content\Images\twitter.gif" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
