@@ -124,6 +124,7 @@
     <Compile Include="Controllers\CSharpController.cs" />
     <Compile Include="Controllers\EFController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\JSController.cs" />
     <Compile Include="Controllers\OOPSController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -213,6 +214,26 @@
     <Content Include="Content\Images\Interfaces\7.png" />
     <Content Include="Content\Images\Interfaces\8.png" />
     <Content Include="Content\Images\Interfaces\9.png" />
+    <Content Include="Content\Images\javascript\1.png" />
+    <Content Include="Content\Images\javascript\10.png" />
+    <Content Include="Content\Images\javascript\11.png" />
+    <Content Include="Content\Images\javascript\12.png" />
+    <Content Include="Content\Images\javascript\13.png" />
+    <Content Include="Content\Images\javascript\14.png" />
+    <Content Include="Content\Images\javascript\15.png" />
+    <Content Include="Content\Images\javascript\16.png" />
+    <Content Include="Content\Images\javascript\17.png" />
+    <Content Include="Content\Images\javascript\18.png" />
+    <Content Include="Content\Images\javascript\19.png" />
+    <Content Include="Content\Images\javascript\2.png" />
+    <Content Include="Content\Images\javascript\20.png" />
+    <Content Include="Content\Images\javascript\3.png" />
+    <Content Include="Content\Images\javascript\4.png" />
+    <Content Include="Content\Images\javascript\5.png" />
+    <Content Include="Content\Images\javascript\6.png" />
+    <Content Include="Content\Images\javascript\7.png" />
+    <Content Include="Content\Images\javascript\8.png" />
+    <Content Include="Content\Images\javascript\9.png" />
     <Content Include="Content\Images\LinkedListStackQueue\1.png" />
     <Content Include="Content\Images\LinkedListStackQueue\2.png" />
     <Content Include="Content\Images\LinkedListStackQueue\3.png" />
@@ -266,6 +287,7 @@
     <Content Include="Snippets\docpanel.snippet" />
     <Content Include="Snippets\code.snippet" />
     <Content Include="Snippets\collection.snippet" />
+    <Content Include="Views\JS\GoodParts.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

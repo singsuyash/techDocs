@@ -18,6 +18,10 @@ namespace Docs.Services
                     CSharpFormat csFormat = new CSharpFormat();
                     htmlString = new HtmlString(csFormat.FormatCode(code));
                     break;
+                case "js":
+                    JavaScriptFormat jsFormat = new JavaScriptFormat();
+                    htmlString = new HtmlString(jsFormat.FormatCode(code));
+                    break;
                 default:
                     htmlString = new HtmlString(String.Empty);
                     break;
