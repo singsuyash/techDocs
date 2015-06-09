@@ -1,0 +1,166 @@
+﻿@{
+    ViewBag.Title = "UnitTesting";
+}
+
+<h2>UnitTesting</h2>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">The Basics of Unit Testing</div>
+    </div>
+    <div class="panel-body">
+        <blockquote>
+            <p>
+                <strong>Definition 1.0</strong>: A <em>unit test</em> is a piece of code(usually a method) which calls another piece of code and checks the correctness of some assumptions afterwards. If the assumption turns out to be wrong, the unit test has failed. The <em>unit</em> is a method or function.
+            </p>
+        </blockquote>
+        <p>A <em>unit of work</em> can be described as the collection of actions that take place in betweeen <strong>invoking a public api</strong>@Html.Raw("<------>")<strong>observing a single noticeable end result</strong>. This end result can be observed without looking inside the private implementations of the system and only through a public api.</p>
+        <p>
+            End result can be one of the following
+            <ul>
+                <li>a return value (will happen only for public api which do not return a void)</li>
+                <li>a noticeable change to the state or behavior to the system visible only through public apis.(example a state machine that changed its state)</li>
+                <li>a callout to a third party system( this callout is a noticeable end result)</li>
+            </ul>
+        </p>
+        <p>If the idea is to carry out a unit of work and see something noticeable, why should we have small unit of work?. This is like checking every small work if it is working fine when instead the bigger work can be checked in lesser time. Of course if you are 100% sure that your small works will work fine without any issue.</p>
+        <blockquote>
+            <p>
+                <strong>Definition 1.1</strong>: A <em>unit test</em> is a piece of code that invokes a unit of work and checks one specific end result of that unit of work. if the assumptions on the end result fails then the unit test has failed. A unit test's scope can span as little as a method or as big as classes.
+            </p>
+        </blockquote>
+        <p>We do test our code, but directly by using the product. Of course in development environment. But this is not a <em>good unit test</em></p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Properties of a Good Unit Test</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>It should be automated and repeatable(should not be like everytime you run a test, you have a variable in between that you are chaning before you run)</li>
+            <li>It should be easy to implement</li>
+            <li>It should be relevant tomorrow(unit test should be time scalable, there are many system parameters that may change tomorrow)</li>
+            <li>Anyone should be able to run it at the push of a button</li>
+            <li>it shouldn't take too much time to run(you are not running the production product methods that might take lot of time to complete, or are asynchronous.)</li>
+            <li>It should be consistent in the results(result should not change until you change the test itself)</li>
+            <li>It should have full control of the unit under test(the unit under test should be inside a single environment i.e. your test environment, no part of it should be able to be changed by something outside the test environment)</li>
+            <li>It should be fully isolated</li>
+            <li>When it fails, it should be easy to find the problem.</li>
+        </ul>
+        Any test method that does not follow the above, is <em><strong>Integration Testing</strong></em>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Integration Tests</div>
+    </div>
+    <div class="panel-body">
+        Properties of Integration Tests
+        <ul>
+            <li>Not fast</li>
+            <li>Not consistent</li>
+            <li>Uses real system time</li>
+            <li>Uses real file system</li>
+            <li>Uses real database</li>
+        </ul>
+        <p>Lets take an example of a Car. If a Car breaks down, its the whole car that doesn't works. Various small parts may work independently but when brought together fails. This is similar to when we test our application through UI.</p>
+        <blockquote>
+            <p>
+                <strong>Definition</strong>: <em>Integration testing</em> is testing a unit of work without having full control over all of it and using one or more of its real dependencies like time, network, database, threads, random number generators etc.
+            </p>
+        </blockquote>
+        <p>A <em>unit test</em> isolates the unit of work from its dependencies so that they are easily consistent in their result and can easily control and simulate any aspect of the unit's behavior.</p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">What makes unit tests good</div>
+    </div>
+    <div class="panel-body">
+        <blockquote>
+            <p>
+                <strong>Final Definition</strong>: A <em>unit test</em> is an automated piece of code that invokes the unit of work being tested, and then checks some assumptions about a single end result of that unit. A unit test is almost always written using a unit test framework. It can be written easily and runs quickly. It's trustworthy, readable, maintainable. It's consistent in its results as long as production code hasn't changed.
+            </p>
+        </blockquote>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">A simple unit test example</div>
+    </div>
+    <div class="panel-body">
+        Create console applications and have a reference of your code in it. Write test classes/test methods in the console application. Call those test methods in the console's Main method.
+        <p>This is only when you are not using any unit testing framework</p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Test-driven Development</div>
+    </div>
+    <div class="panel-body">
+        <p>Many people think that the best time to write tests is after the production code is written. But there is a growing number of group that prefer writing tests even before the production code is written. What will you test if there is no code?</p>
+        <p>
+            <img src="../../Content/Images/testing/1.png" alt="" />
+        </p>
+        <p>But what TDD actually is :</p>
+        <p><img src="../../Content/Images/testing/2.png" alt="" /></p>
+
+        <p>
+            Steps of TDD
+            <ul>
+                <li>Write a failing test to prove code or functionality is missing from the end product</li>
+                <li>Make the test pass by writing production code that meets the expectations of your test</li>
+                <li>Refactor your code</li>
+                <li>Write another test</li>
+            </ul>
+        </p>
+        <blockquote>
+            <p>
+                <em>Refactoring</em> means changing a piece of code <em>without</em> changing its functionality. The code still does the same thing, but it becomes easier to maintain, read, debug, and change.
+            </p>
+        </blockquote>
+        <p>
+            Technically, one of the biggest benefits of TDD nobody tells you about is that by
+            seeing a test fail, and then seeing it pass without changing the test, you’re basically
+            testing the test itself. If you expect it to fail and it passes, you might have a bug in
+            your test or you’re testing the wrong thing. If the test failed and now you expect
+            it to pass, and it still fails, your test could have a bug, or it’s expecting the wrong
+            thing to happen.
+        </p>
+        <p>
+            The 3 core skills of successfull TDD
+            <ul>
+                <li>Knowing how to write good tests(this book teaches this)</li>
+                <li>Writing them test-first</li>
+                <li>Designing them well</li>
+            </ul>
+        </p>
+
+    </div>
+</div>
+
+<br />
+
+<h2>A First Unit Test</h2>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">titleName</div>
+    </div>
+    <div class="panel-body">
+        content
+    </div>
+</div>

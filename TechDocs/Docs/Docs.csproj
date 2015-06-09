@@ -126,6 +126,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\JSController.cs" />
     <Compile Include="Controllers\OOPSController.cs" />
+    <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -246,6 +247,8 @@
     <Content Include="Content\Images\Set\3.png" />
     <Content Include="Content\Images\Set\4.png" />
     <Content Include="Content\Images\Set\5.png" />
+    <Content Include="Content\Images\testing\1.png" />
+    <Content Include="Content\Images\testing\2.png" />
     <Content Include="Content\Images\twitter.gif" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
@@ -290,6 +293,7 @@
     <Content Include="Snippets\docpanel.snippet" />
     <Content Include="Snippets\code.snippet" />
     <Content Include="Snippets\collection.snippet" />
+    <Content Include="Views\Test\UnitTesting.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
