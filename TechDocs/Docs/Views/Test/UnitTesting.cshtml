@@ -158,9 +158,443 @@
 
 <div class="panel panel-info">
     <div class="panel-heading">
-        <div class="panel-title">titleName</div>
+        <div class="panel-title">Why NUnit, Why not MSTest</div>
     </div>
     <div class="panel-body">
-        content
+        <ul>
+            <li>Because NUnit has more features. These features make it more readable, maintainable.</li>
+            <li>Available via Nuget.</li>
+        </ul>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Frameworks for Unit Testing</div>
+    </div>
+    <div class="panel-body">
+        What unit testing framework offer?
+        <ul>
+            <li>Easy to implement. Earlier we might have needed a <em>Console app</em>, a <em>UI</em> or a <em>Web Form</em> for testing because we didn't have much time to implement testing.</li>
+            <li>Repeatable. With time your unit tests had to be written again.</li>
+            <li>Coverage. Earlier each and every part of <em>logic</em> might not have been covered.</li>
+        </ul>
+        <p>In short we have been missing a <em>framework</em> for writing, running and reviewing unit tests and their results</p>
+        <p>
+            <img src="~/Content/Images/testing/3.png" />
+        </p>
+        <p>
+            <img src="~/Content/Images/testing/4.png" />
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">The LogAn project(log and notification)</div>
+    </div>
+    <div class="panel-body">
+        The Scenario:
+        <blockquote>
+            <p>Your company has many internal products it uses to monitor its applications at customer sites. All these products write log files and place them in a special directory. The log files are written in a proprietary format that your company has come up with that can't be parsed by any existing third-party tools. You're tasked with building a product, LogAn, that can analyze these log files and find special cases and events in them. When it finds these cases and events, it should alert the appropriate parties.</p>
+        </blockquote>
+        <p>
+            In this course, we will learn to write tests that verify LogAn's
+            <ul>
+                <li>parsing</li>
+                <li>event-recognition</li>
+                <li>notification abilities</li>
+            </ul>
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Loading up the Solution</div>
+    </div>
+    <div class="panel-body">
+        I will be using Visual Studio 2013
+        <p>The full solution can be found here <a href="https://github.com/royosherove/aout2">https://github.com/royosherove/aout2</a></p>
+        <p>Or Let's begin by creating our own solution. Use the downloaded solution for reference of project setup.</p>
+        <ul>
+            <li>Open Visual Studio</li>
+            <li><code>ctrl+shift+n</code> to create a new project</li>
+            <li>Choose a Class Library project</li>
+            <li>Project name: "LogAn", Solution name: "ArtOfUnitTesting"</li>
+        </ul>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">The Solution</div>
+    </div>
+    <div class="panel-body">
+        Let's begin with our first class:
+        <p>
+            @Html.DisplayCode(@"
+public class LogAnalyzer
+{
+    public bool IsValidLogFileName(string fileName)
+    {
+        if(fileName.EndsWith("".SLF""))
+        {
+            return false;
+        }
+        return true;
+    }
+}
+", "c#")
+        </p>
+        <p>
+            This method has a bug, it returns <code>false</code> instead of <code>true</code> if the fileName ends with ".SLF". This is to show how a test looks like when it fails.
+        </p>
+        <p>
+            The first test is to make sure the method returns true if the filename is valid. Here are the first steps for writing an automated test for the <code>IsValidLogFileName</code> method.
+            <ul>
+                <li>Add a new Class Library project to your solution which will contain your tests. Name it "LogAn.UnitTests"</li>
+                <li>Add a new Class to that project that will hold your test methods. Name if "LogAnalyzerTests"</li>
+                <li>Add a new method, name it <code>IsValidLogFileName_BadExtension_ReturnFalse</code></li>
+            </ul>
+        </p>
+        <p>
+            <img src="~/Content/Images/testing/8.png" />
+        </p>
+        <p>
+            Here are the three parts of the test method name:
+            <ul>
+                <li><strong>UnitOfWorkName</strong>: The name of the method or group of methods or classes you're testing</li>
+                <li>
+                    <strong>Scenario</strong>: The conditions under which the unit is tested such as "bad login" or "invalid user" or "good password". You could describe the parameters being sent
+                    to the public method or the initial state of the system when the unit of work is
+                    invoked such as “system out of memory” or “no users exist” or “user already exists.”
+                </li>
+                <li>
+                    <strong>Expected Behavior</strong>What you expect the tested method to do under the specified
+                    conditions. This could be one of three possibilities: return a value as a
+                    result (a real value, or an exception), change the state of the system as a result
+                    (like adding a new user to the system, so the system behaves differently on the
+                    next login), or call a third-party system as a result (like an external web service).
+                </li>
+            </ul>
+        </p>
+        <p>
+            <img src="~/Content/Images/testing/9.png" />
+        </p>
+        <p>
+            <img src="~/Content/Images/testing/10.png" />
+        </p>
+        <p>In practice we keep your production code and test code in separate projects</p>
+        <p>Now as a last step for this section, add the reference of <em><strong>LogAn</strong></em> project to your test project</p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Installing NUnit</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li><code>ctrl+q</code> for quick launch</li>
+            <li>Type "Package Manager Console", choose and click enter</li>
+            <li>Choose Package source: "nuget.org", Default project: "LogAn.UnitTests"</li>
+            <li>type <code>install-package nunit</code> and <code>enter</code>. This downloads NUnit files, adds a refernce of NUnit's dll to your project</li>
+            <li>type <code>install-package nunit.runner</code>. This downloads the NUnit UI.</li>
+        </ul>
+        <p>
+            <img src="~/Content/Images/testing/5.png" />
+        </p>
+        <p>
+            <img src="~/Content/Images/testing/6.png" />
+        </p>
+        <p>
+            <img src="~/Content/Images/testing/7.png" />
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Using the NUnit attributes in your code</div>
+    </div>
+    <div class="panel-body">
+        <p>NUnit uses an attribute scheme to recognize and load tests</p>
+        <p>NUnit provides an assembly that contains these special attributes.</p>
+        <p>
+            NUnit/NUnit runner identify tests by
+            <ul>
+                <li><code>[TestFixture]</code></li>
+                <li><code>[Test]</code></li>
+            </ul>
+        </p>
+        <p>
+            This is how your code would look like
+            @Html.DisplayCode(@"
+using NUnit.Framework;
+
+namespace LogAn.UnitTests
+{
+    [TestFixture]
+    public class LogAnalyzerTests
+    {
+        [Test]
+        public void IsValidLogFileName_BadExtension_ReturnFalse()
+        {
+
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <blockquote>
+            <p><strong>Tip</strong>: NUnit requires the test methods to be public, return void and accept no parameters. But sometimes even these can have parameters.</p>
+        </blockquote>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Writing your first Test</div>
+    </div>
+    <div class="panel-body">
+        A unit test comprises of 3 main actions:
+        <ul>
+            <li>Arrange(do whatever you will <em>need</em> to call the method under test. for example create parameter variables. Create a variable which will hold the <em>expected</em> end result of "Act")</li>
+            <li>Act(call the method under test and store the end result somewhere)</li>
+            <li>Assert(compare the end result of "Act" with what is expected and make a decision if the test passed or not)</li>
+        </ul>
+        <p>
+            Here's the code:
+            @Html.DisplayCode(@"
+using NUnit.Framework;
+
+namespace LogAn.UnitTests
+{
+    [TestFixture]
+    public class LogAnalyzerTests
+    {
+        [Test]
+        public void IsValidLogFileName_BadExtension_ReturnFalse()
+        {
+            //Arrange
+            LogAnalyzer analyzer = new LogAnalyzer();
+
+            //Act
+            bool result = analyzer.IsValidLogFileName(""filewithbadextension.foo"");
+
+            //Assert
+            Assert.False(result);
+        }
+    }
+}
+
+", "c#")
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">The <code>Assert</code> class</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li><code>Assert</code> class has static methods</li>
+            <li>Bridge between your code and NUnit framework</li>
+            <li>If the arguments that are passed in the <code>Assert</code> class turn out to be different that what you are expecting, NUnit will realize that the test has failed and will alert you</li>
+            <li>You can optionally send the message to alert to <code>Assert</code></li>
+            <li>
+                Some big ones
+                <ul>
+                    <li><code>Assert.True()</code></li>
+                    <li><code>Assert.False</code>-syntactic sugar</li>
+                    <li><code>Assert.AreEqual(expectedObject, actualObject, message)</code>-to test if the values of <code>expectedObject</code> and <code>actualObject</code> are same</li>
+                    <li><code>Assert.AreSame(expectedObject, actualObject, message)</code>-to test if both the arguments reference the same object</li>
+                </ul>
+            </li>
+            <li>Try not to provide the <code>message</code>. For most cases your test method name should describe exactly what happened if the test failed</li>
+        </ul>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Running your first test with NUnit</div>
+    </div>
+    <div class="panel-body">
+        <p>Find "nunit.exe" and run it</p>
+        <p>
+            <img src="~/Content/Images/testing/11.png" />
+        </p>
+        <p>
+            <img src="~/Content/Images/testing/12.png" />
+        </p>
+        <p>
+            <img src="~/Content/Images/testing/13.png" />
+        </p>
+        <p>
+            <img src="~/Content/Images/testing/14.png" />
+        </p>
+        <p>
+            The test failed, lets fix the code and try to pass the test
+            @Html.DisplayCode(@"
+
+namespace LogAn
+{
+    public class LogAnalyzer
+    {
+        public bool IsValidLogFileName(string fileName)
+        {
+            if (!fileName.EndsWith("".SLF""))
+            {
+                return false;
+            }
+            return true;
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            <img src="~/Content/Images/testing/15.png" />
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Adding some Positive Tests</div>
+    </div>
+    <div class="panel-body">
+        <p>
+            Notice this is not TDD. Since we are writing tests after the code, we need to come up with many scenarios for which our method may fail. The bad extensions will be flagged. But what about different variety of good ones. Will they all pass? The below code will give an idea:
+            @Html.DisplayCode(@"
+using NUnit.Framework;
+
+namespace LogAn.UnitTests
+{
+    [TestFixture]
+    public class LogAnalyzerTests
+    {
+        [Test]
+        public void IsValidLogFileName_BadExtension_ReturnsFalse()
+        {
+            //Arrange
+            LogAnalyzer analyzer = new LogAnalyzer();
+
+            //Act
+            bool result = analyzer.IsValidLogFileName(""filewithbadextension.foo"");
+
+            //Assert
+            Assert.False(result);
+        }
+
+        [Test]
+        public void IsValidLogFileName_GoodExtensionLowerCase_ReturnsTrue()
+        {
+            //Arrange
+            LogAnalyzer analyzer = new LogAnalyzer();
+
+            //Act
+            bool result = analyzer.IsValidLogFileName(""filewithgoodextension.slf"");
+
+            //Assert
+            Assert.True(result);
+        }
+
+        [Test]
+        public void IsValidLogFileName_GoodExtensionUpperCase_ReturnsTrue()
+        {
+            //Arrange
+            LogAnalyzer analyzer = new LogAnalyzer();
+
+            //Act
+            bool result = analyzer.IsValidLogFileName(""filewithgoodextension.SLF"");
+
+            //Assert
+            Assert.True(result);
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>Before even we run our test in the NUnit UI, notice it has already picked up the new tests when we built our solution</p>
+        <p>
+            <img src="~/Content/Images/testing/16.png" />
+        </p>
+        <p>
+            <img src="~/Content/Images/testing/17.png" />
+        </p>
+        <p>
+            Notice our test fail for <code>IsValidLogFileName_GoodExtensionLowerCase_ReturnsTrue</code>. This only indicates that you have to test if the file extension is bad, but also test for different kinds of correct file extension. Let's fix our code.
+            @Html.DisplayCode(@"
+
+namespace LogAn
+{
+    public class LogAnalyzer
+    {
+        public bool IsValidLogFileName(string fileName)
+        {
+            if (!fileName.EndsWith("".SLF"", System.StringComparison.CurrentCultureIgnoreCase))
+            {
+                return false;
+            }
+            return true;
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            <img src="~/Content/Images/testing/18.png" />
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">From red to green: Passing the Tests</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>If all pass, green. If one fail, red</li>
+            <li>Tests will also fail when an exception occurs</li>
+            <li>
+                Speaking of exceptions, you’ll also see later in this chapter a form of test that
+                expects an exception to be thrown from some code, as a specific result or behavior.
+                Those tests will fail if an exception is not thrown.
+            </li>
+        </ul>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Test Code Styling</div>
+    </div>
+    <div class="panel-body">
+        Notice that the test i am writing look different from usual code
+        <ul>
+            <li>
+                The test name can be too long
+            </li>
+            <li>Separate out Arrange/Act/Assert</li>
+        </ul>
     </div>
 </div>

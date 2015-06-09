@@ -18,5 +18,10 @@ namespace Docs.Controllers
         {
             return View();
         }
+
+        public ActionResult Delegates()
+        {
+            return View();
+        }
     }
 }

@@ -248,7 +248,23 @@
     <Content Include="Content\Images\Set\4.png" />
     <Content Include="Content\Images\Set\5.png" />
     <Content Include="Content\Images\testing\1.png" />
+    <Content Include="Content\Images\testing\10.png" />
+    <Content Include="Content\Images\testing\11.png" />
+    <Content Include="Content\Images\testing\12.png" />
+    <Content Include="Content\Images\testing\13.png" />
+    <Content Include="Content\Images\testing\14.png" />
+    <Content Include="Content\Images\testing\15.png" />
+    <Content Include="Content\Images\testing\16.png" />
+    <Content Include="Content\Images\testing\17.png" />
+    <Content Include="Content\Images\testing\18.png" />
     <Content Include="Content\Images\testing\2.png" />
+    <Content Include="Content\Images\testing\3.png" />
+    <Content Include="Content\Images\testing\4.png" />
+    <Content Include="Content\Images\testing\5.png" />
+    <Content Include="Content\Images\testing\6.png" />
+    <Content Include="Content\Images\testing\7.png" />
+    <Content Include="Content\Images\testing\8.png" />
+    <Content Include="Content\Images\testing\9.png" />
     <Content Include="Content\Images\twitter.gif" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
@@ -294,6 +310,7 @@
     <Content Include="Snippets\code.snippet" />
     <Content Include="Snippets\collection.snippet" />
     <Content Include="Views\Test\UnitTesting.cshtml" />
+    <Content Include="Views\CSharp\Delegates.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
