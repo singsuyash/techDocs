@@ -257,7 +257,13 @@
     <Content Include="Content\Images\testing\16.png" />
     <Content Include="Content\Images\testing\17.png" />
     <Content Include="Content\Images\testing\18.png" />
+    <Content Include="Content\Images\testing\19.png" />
     <Content Include="Content\Images\testing\2.png" />
+    <Content Include="Content\Images\testing\20.png" />
+    <Content Include="Content\Images\testing\21.png" />
+    <Content Include="Content\Images\testing\22.png" />
+    <Content Include="Content\Images\testing\23.png" />
+    <Content Include="Content\Images\testing\24.png" />
     <Content Include="Content\Images\testing\3.png" />
     <Content Include="Content\Images\testing\4.png" />
     <Content Include="Content\Images\testing\5.png" />

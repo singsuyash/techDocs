@@ -598,3 +598,550 @@ namespace LogAn
         </ul>
     </div>
 </div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Refactoring to parameterized tests</div>
+    </div>
+    <div class="panel-body">
+        <p>
+            NUnit's feature <em>parameterized tests</em>. To use it take one of the existing test methods that look exactly the same as the others.
+            <ul>
+                <li>Replace the <code>[Test]</code> attribute with the <code>[TestCase]</code> attribute.</li>
+                <li>Extract all the hardcoded values the test is using into parameters for the test method</li>
+                <li>Move the values you had before into the braces of the <code>[TestCase(param1, param2,...)]</code> attribute.</li>
+                <li>Rename this test method to a more generic name</li>
+                <li>Add a <code>[TestCase(...)]</code> attribute on this same test method for each of the tests you want to merge into this test method, using the other test's values</li>
+                <li>Remove the other tests so you're left with just one test method that has multiple <code>[TestCase]</code> attributes</li>
+            </ul>
+        </p>
+        <p>
+            @Html.DisplayCode(@"
+using NUnit.Framework;
+
+namespace LogAn.UnitTests
+{
+    [TestFixture]
+    public class LogAnalyzerTests
+    {
+        [Test]
+        public void IsValidLogFileName_BadExtension_ReturnsFalse()
+        {
+            //Arrange
+            LogAnalyzer analyzer = new LogAnalyzer();
+
+            //Act
+            bool result = analyzer.IsValidLogFileName(""filewithbadextension.foo"");
+
+            //Assert
+            Assert.False(result);
+        }
+
+        [TestCase(""filewithgoodextension.SLF"")]
+        [TestCase(""filewithgoodextension.slf"")]
+        public void IsValidLogFileName_ValidExtensions_ReturnsTrue(string file)
+        {
+            //Arrange
+            LogAnalyzer analyzer = new LogAnalyzer();
+
+            //Act
+            bool result = analyzer.IsValidLogFileName(file);
+
+            //Assert
+            Assert.False(result);
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            Let's also refactor the negative test, so the code will finally look like. Notice the test method name, another parameter and the Assert statement.
+            @Html.DisplayCode(@"
+using NUnit.Framework;
+
+namespace LogAn.UnitTests
+{
+    [TestFixture]
+    public class LogAnalyzerTests
+    {
+        [TestCase(""filewithgoodextension.SLF"", true)]
+        [TestCase(""filewithgoodextension.slf"", true)]
+        [TestCase(""filewithbadextension.foo"", false)]
+        public void IsValidLogFileName_VariousExtensions_ReturnsTrue(string file, bool expected)
+        {
+            //Arrange
+            LogAnalyzer analyzer = new LogAnalyzer();
+
+            //Act
+            bool result = analyzer.IsValidLogFileName(file);
+
+            //Assert
+            Assert.AreEqual(expected, result);
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>Let's run this test now.</p>
+        <p>
+            <img src="../../Content/Images/testing/19.png" alt="" />
+        </p>
+        <p>
+            <img src="../../Content/Images/testing/20.png" alt="" />
+        </p>
+        <p>Readability: With this one test method, you got rid of multiple versions of similar tests. But notice how the name of the test has become so generic that it's hard to figure out what makes the difference between valid and invalid.</p>
+        <p>Maintainabiliti: Notice now we have just one test to maintain, but it can not be 1 big test.</p>
+        <p></p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Setup and teardown</div>
+    </div>
+    <div class="panel-body">
+        We have how to run a unit test. Now, we will look at how to set up the initial state for each test and how to remove any garbage that's left by your test.
+        <p>When a test ends, the state for that test should be such that it has never ran before. So all the instances of data have to be destroyed.</p>
+        <p>Each test should be independent</p>
+        <p>
+            Attributes to be used for this
+            <ul>
+                <li>
+                    <code>[SetUp]</code>: can be put on a method, it causes NUnit to run that setup method each time it runs any of the tests in your classes.
+                </li>
+                <li><code>[TearDown]</code>: This attrubute denotes a method to be executed once after each test in your class has executed</li>
+            </ul>
+        </p>
+        <p>
+            @Html.DisplayCode(@"
+using NUnit.Framework;
+
+namespace LogAn.UnitTests
+{
+    [TestFixture]
+    public class LogAnalyzerTests
+    {
+
+        private LogAnalyzer m_analyzer = null;
+
+        [SetUp]
+        public void Setup()
+        {
+            m_analyzer = new LogAnalyzer();
+        }
+
+        [TestCase(""filewithgoodextension.SLF"", true)]
+        [TestCase(""filewithgoodextension.slf"", true)]
+        [TestCase(""filewithbadextension.foo"", false)]
+        public void IsValidLogFileName_VariousExtensions_ReturnsTrue(string file, bool expected)
+        {
+            //Arrange
+            LogAnalyzer analyzer = new LogAnalyzer();
+
+            //Act
+            bool result = analyzer.IsValidLogFileName(file);
+
+            //Assert
+            Assert.AreEqual(expected, result);
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            //the line below is included to show an anti pattern.
+            //This isn't really needed. Don't do it in real life.
+            m_analyzer = null;
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            <ul>
+                <li>Think of the setup and teardown methods as constructors and destructors for the tests in your class</li>
+                <li>You can have only one of these in your Test Class</li>
+            </ul>
+        </p>
+        <p>In real life, do not use the setup method to <em>initialize instances</em>. Use factory methods instead.</p>
+        <p>
+            We also have <code>[TestFixtureSetUp]</code> &amp; <code>[TestFixtureTearDown]</code> for a class level setup and teardown. But this means that you might be sharing state between tests.
+        </p>
+        <p>We almost <em>never, ever</em> use <code>[TearDown]</code>, <code>[TestFixtureSetUp]</code> &amp; <code>[TestFixtureTearDown]</code>. If you do, you're very likely writing an integration test where you're touching the filesystem or database, and you need to clean up the disk or the DB after the tests</p>
+        <p>The only time it makes sense to use a <code>[TearDown]</code> method in unit tests, is when you need to "reset" the state of a static variable or singleton in memory between tests.</p>
+        <p>In case you want to do integration tests, do that in a separate project</p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Checking for expected exceptions</div>
+    </div>
+    <div class="panel-body">
+        One common testing scenario is making sure that correct exception is thrown from the tested method when it should be.
+        <p>
+            Let's assume that your method should throw an <code>ArgumentException</code> when you send in an empty filename. if your code doesn't throw an exception, it means your test should fail.
+        </p>
+        <p>
+            @Html.DisplayCode(@"
+using System;
+namespace LogAn
+{
+    public class LogAnalyzer
+    {
+        public bool IsValidLogFileName(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                throw new ArgumentException(""filename has to be provided"");
+            }
+
+            if (!fileName.EndsWith("".SLF"", System.StringComparison.CurrentCultureIgnoreCase))
+            {
+                return false;
+            }
+            return true;
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>Let's see how to do this by a way, which we shouldn't do</p>
+        <p>
+            @Html.DisplayCode(@"
+using NUnit.Framework;
+using System;
+
+namespace LogAn.UnitTests
+{
+    [TestFixture]
+    public class LogAnalyzerTests
+    {
+
+        private LogAnalyzer m_analyzer = null;
+
+        [SetUp]
+        public void Setup()
+        {
+            m_analyzer = MakeAnalyzer();
+        }
+
+        [TestCase(""filewithgoodextension.SLF"", true)]
+        [TestCase(""filewithgoodextension.slf"", true)]
+        [TestCase(""filewithbadextension.foo"", false)]
+        public void IsValidLogFileName_VariousExtensions_ReturnsTrue(string file, bool expected)
+        {
+            //Arrange
+            LogAnalyzer analyzer = new LogAnalyzer();
+
+            //Act
+            bool result = analyzer.IsValidLogFileName(file);
+
+            //Assert
+            Assert.AreEqual(expected, result);
+        }
+
+        [ExpectedException(typeof(ArgumentException), ExpectedMessage=""filename has to be provided"")]
+        public void IsValidFileName_EmptyFileName_ThrowsException()
+        {
+            m_analyzer.IsValidLogFileName(string.Empty);
+        }
+
+        //Factory
+        private LogAnalyzer MakeAnalyzer()
+        {
+            return new LogAnalyzer();
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p><img src="../../Content/Images/testing/21.png" alt="" /></p>
+        <p>
+            See the code again
+            <ul>
+                <li>Expected value is provided in the attribute</li>
+                <li>No explicit Assert Call(the <code>[ExpectedException]</code> attribute contians the assert within it)</li>
+                <li>End result is not used</li>
+            </ul>
+        </p>
+        <p>How it works is, this attribute tells the test runner to wrap the execution of this whole method in a big <code>try catch</code> block and fail the test if nothing was <code>catch</code>ed. The problem with this can be that you won't know <em>which</em> line threw the exception, and your test will pass, even though some other exception occured which threw the same exception you expected. Your logic that was intended to be tested didn't get tested. <em><strong>So try not to use it</strong></em></p>
+        <p>Instead use <code>@Html.Raw(Html.Encode("Assert.Catch<T>(delegate)"))</code></p>
+        <p>
+            @Html.DisplayCode(@"
+using NUnit.Framework;
+using System;
+
+namespace LogAn.UnitTests
+{
+    [TestFixture]
+    public class LogAnalyzerTests
+    {
+
+        private LogAnalyzer m_analyzer = null;
+
+
+        [TestCase(""filewithgoodextension.SLF"", true)]
+        [TestCase(""filewithgoodextension.slf"", true)]
+        [TestCase(""filewithbadextension.foo"", false)]
+        public void IsValidLogFileName_VariousExtensions_ReturnsTrue(string file, bool expected)
+        {
+            //Arrange
+            LogAnalyzer analyzer = new LogAnalyzer();
+
+            //Act
+            bool result = analyzer.IsValidLogFileName(file);
+
+            //Assert
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public void IsValidFileName_EmptyFileName_ThrowsException()
+        {
+            m_analyzer = MakeAnalyzer();
+
+            var expected = Assert.Catch<Exception>(()=>m_analyzer.IsValidLogFileName(String.Empty));
+
+            StringAssert.Contains(""filename has to be provided"", expected.Message);
+        }
+
+        //Factory
+        private LogAnalyzer MakeAnalyzer()
+        {
+            return new LogAnalyzer();
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            There are a lot of changes here:
+            <ul>
+                <li><code>[ExpectedException]</code> is gone.</li>
+                <li>Use of <code>@Html.Raw(Html.Encode("Assert.Catch<T>"))</code> that takes no arguments</li>
+                <li><code>Assert.Catch</code> returns the instance of the exception object that was thrown inside the lambda. This allows you to later assert on that exception object</li>
+                <li><code>StringAssert</code> makes testing with strings more readable</li>
+                <li><code>StringAssert.Contains</code> is used just to check if the message contains a string you are looking for. Contains is used because you never know if a line break comes along with your string.</li>
+            </ul>
+        </p>
+        <p>Other ways of Asserting for Exceptions is NUnit's fluent syntax. Documentation available at <a href="http://nunit.com">nunit.com</a></p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Ignoring Tests</div>
+    </div>
+    <div class="panel-body">
+        Use the <code>[Ignore]</code> attribute on tests that are broken because of a problem in the test, not in the code. This should be rare!
+        <p>
+            @Html.DisplayCode(@"
+using NUnit.Framework;
+using System;
+
+namespace LogAn.UnitTests
+{
+    [TestFixture]
+    public class LogAnalyzerTests
+    {
+
+        private LogAnalyzer m_analyzer = null;
+
+        [Ignore]
+        [TestCase(""filewithgoodextension.SLF"", true)]
+        [TestCase(""filewithgoodextension.slf"", true)]
+        [TestCase(""filewithbadextension.foo"", false)]
+        public void IsValidLogFileName_VariousExtensions_ReturnsTrue(string file, bool expected)
+        {
+            //Arrange
+            LogAnalyzer analyzer = new LogAnalyzer();
+
+            //Act
+            bool result = analyzer.IsValidLogFileName(file);
+
+            //Assert
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public void IsValidFileName_EmptyFileName_ThrowsException()
+        {
+            m_analyzer = MakeAnalyzer();
+
+            var expected = Assert.Catch<Exception>(()=>m_analyzer.IsValidLogFileName(String.Empty));
+
+            StringAssert.Contains(""filename has to be provided"", expected.Message);
+        }
+
+        //Factory
+        private LogAnalyzer MakeAnalyzer()
+        {
+            return new LogAnalyzer();
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p><img src="../../Content/Images/testing/22.png" alt="" /></p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Setting Test Categories</div>
+    </div>
+    <div class="panel-body">
+        <p>
+            @Html.DisplayCode(@"
+using NUnit.Framework;
+using System;
+
+namespace LogAn.UnitTests
+{
+    [TestFixture]
+    public class LogAnalyzerTests
+    {
+
+        private LogAnalyzer m_analyzer = null;
+
+        [Category(""Fast Tests"")]
+        [TestCase(""filewithgoodextension.SLF"", true)]
+        [TestCase(""filewithgoodextension.slf"", true)]
+        [TestCase(""filewithbadextension.foo"", false)]
+        public void IsValidLogFileName_VariousExtensions_ReturnsTrue(string file, bool expected)
+        {
+            //Arrange
+            LogAnalyzer analyzer = new LogAnalyzer();
+
+            //Act
+            bool result = analyzer.IsValidLogFileName(file);
+
+            //Assert
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public void IsValidFileName_EmptyFileName_ThrowsException()
+        {
+            m_analyzer = MakeAnalyzer();
+
+            var expected = Assert.Catch<Exception>(()=>m_analyzer.IsValidLogFileName(String.Empty));
+
+            StringAssert.Contains(""filename has to be provided"", expected.Message);
+        }
+
+        //Factory
+        private LogAnalyzer MakeAnalyzer()
+        {
+            return new LogAnalyzer();
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p><img src="../../Content/Images/testing/23.png" alt="" /></p>
+        <p><img src="../../Content/Images/testing/24.png" alt="" /></p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Testing results that are system state changes instead of return values</div>
+    </div>
+    <div class="panel-body">
+        <p>This is the second type of end result that we expect</p>
+        <blockquote>
+            <p><strong>Definition</strong>: <em>State-based testing</em>(also called <em>state verification</em>) determines whether the exercised method worked correctly by examining the changed behavior of the system under test and its dependencies after the method is called.</p>
+        </blockquote>
+        <p>If the system acts exactly the same as it did before, then you didn't really change its state, or there's a bug.</p>
+        <p>
+            @Html.DisplayCode(@"
+using System;
+namespace LogAn
+{
+    public class LogAnalyzer
+    {
+        public bool WasLastFileNameValid { get; set; }
+
+        public bool IsValidLogFileName(string fileName)
+        {
+            WasLastFileNameValid = false; // Changes the state of the system
+            if (string.IsNullOrEmpty(fileName))
+            {
+                throw new ArgumentException(""filename has to be provided"");
+            }
+
+            if (!fileName.EndsWith("".SLF"", System.StringComparison.CurrentCultureIgnoreCase))
+            {
+                return false;
+            }
+
+            WasLastFileNameValid = true; //Changes the state of the system
+            return true;
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p><code>WasLastFileNameValid</code> keeps the state of the system. You can't simply test this functionality by writing a test that gets a return value from a method.</p>
+        <p>
+            First, you have to identify the unit of work you're testing. Is it in the new property called <code>WasLastFileNameValid</code>? Partly. It's also in the <code>IsValidLogFileName</code> method, so your test should start with the name of that method because that's the unit of work you invoke publicly to change the state of the system. The following code shows a simple test to see if the outcome is remembered.
+        </p>
+        <p>
+            @Html.DisplayCode(@"
+[Test]
+        public void IsValidFileName_WhenCalled_ChangesWasLastFileNameValid()
+        {
+            LogAnalyzer la = MakeAnalyzer();
+
+            la.IsValidLogFileName(""badname.foo"");
+
+            Assert.False(la.WasLastFileNameValid);
+        }
+", "c#")
+        </p>
+        <p>Below is a better test that tests both the positive and the negative</p>
+        <p>
+            @Html.DisplayCode(@"
+[TestCase(""badfile.foo"", false)]
+[TestCase(""goodfile.slf"", true)]
+public void IsValidFileName_WhenCalled_ChangesWasLastFileNameValid(string file, bool expected)
+{
+    LogAnalyzer la = MakeAnalyzer();
+
+    la.IsValidLogFileName(file);
+
+    Assert.AreEqual(expected, la.WasLastFileNameValid);
+}
+", "c#")
+        </p>
+        <p>
+            Some naming conventions
+            <ul>
+                <li><code>ByDefault</code> can be used when there's an expected return value with no prior action.</li>
+                <li><code>WhenCalled</code> or <code>Always</code> can be used in the second or third kind of unit of work results(change state or call a third party) when the state change is done with no prior configuration or when the third-party call is done with no prior configuration; examples: <code>Sum_WhenCalled_CallsTheLogger</code>, <code>Sum_Always_CallsTheLogger</code></li>
+            </ul>
+        </p>
+
+        <p>
+            So far, so good. But what happens when the method you’re testing depends on an
+            external resource, such as the filesystem, a database, a web service, or anything else
+            that’s hard for you to control? And how do you test the third type of result for a unit of work - a call to a third party? That’s when you start creating test stubs, fake objects, and mock objects, which are discussed in the next few sections.
+        </p>
+    </div>
+</div>
