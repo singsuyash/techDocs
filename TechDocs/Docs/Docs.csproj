@@ -204,6 +204,14 @@
     <Content Include="Content\Images\Enumerator\2.png" />
     <Content Include="Content\Images\facebook.png" />
     <Content Include="Content\Images\foreachtofor.png" />
+    <Content Include="Content\Images\Generics\1.png" />
+    <Content Include="Content\Images\Generics\2.png" />
+    <Content Include="Content\Images\Generics\3.png" />
+    <Content Include="Content\Images\Generics\4.png" />
+    <Content Include="Content\Images\Generics\5.png" />
+    <Content Include="Content\Images\Generics\6.png" />
+    <Content Include="Content\Images\Generics\7.png" />
+    <Content Include="Content\Images\Generics\8.png" />
     <Content Include="Content\Images\Interfaces\1.png" />
     <Content Include="Content\Images\Interfaces\10.png" />
     <Content Include="Content\Images\Interfaces\11.png" />
@@ -313,10 +321,11 @@
     <Content Include="Views\EF\Relationships.cshtml" />
     <Content Include="Views\CSharp\Collections.cshtml" />
     <Content Include="Snippets\docpanel.snippet" />
-    <Content Include="Snippets\code.snippet" />
     <Content Include="Snippets\collection.snippet" />
     <Content Include="Views\Test\UnitTesting.cshtml" />
     <Content Include="Views\CSharp\Delegates.cshtml" />
+    <Content Include="Views\CSharp\Generics.cshtml" />
+    <Content Include="Snippets\code.snippet" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -1,0 +1,627 @@
+﻿@{
+    ViewBag.Title = "Generics";
+}
+
+<h2>Generics</h2>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">The Buffer Problem</div>
+    </div>
+    <div class="panel-body">
+        @Html.DisplayCode(@"
+namespace DataStructures
+{
+    public class CircularBuffer
+    {
+        private double[] _buffer;
+        public int _start;
+        public int _end;
+        public CircularBuffer(int capacity)
+        {
+            _buffer = new double[capacity + 1];
+            _start = 0;
+            _end = 0;
+        }
+
+        public void Write(double value)
+        {
+            _buffer[_end] = value;
+            _end = (_end + 1) % _buffer.Length;
+            if (_end == _start)
+            {
+                _start = (_start + 1) % _buffer.Length;
+            }
+        }
+
+        public double Read()
+        {
+            var result = _buffer[_start];
+            _buffer[_start] = 0.0;
+            if (_start == _end)
+            {
+                return 0.0;
+            }
+
+            _start = (_start + 1) % _buffer.Length;
+
+            return result;
+        }
+    }
+}
+
+", "c#")
+        <p>Circular buffer is a data stucture where a size is assigned to it. It follows a queue. You start writing values to the buffer, it gets added at the end. You read values, it reads from the start. In case of overflow, the first value is flushed out, all the values shift in front to make room for the lates incoming value at the back. A Circular buffer is generally used to stream audio data.</p>
+        <p>
+            Let's see a case of a buffer with a capacity of 3 elements. Notice the circular buffer we created only accepts a <code>double</code>. Upon reading the buffer, only last 3 values are fetched. On reading more it returns 0.0;
+        </p>
+        <p>
+            @Html.DisplayCode(@"
+using DataStructures;
+using System;
+
+namespace Client
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            CircularBuffer cb = new CircularBuffer(capacity: 3);
+            cb.Write(1);
+            cb.Write(2);
+            cb.Write(3);
+            cb.Write(4);
+            cb.Write(5);
+
+            Console.WriteLine(cb.Read());
+            Console.WriteLine(cb.Read());
+            Console.WriteLine(cb.Read());
+
+            //Reading this would result in a default value of a double i.e. 0.0
+            Console.WriteLine(cb.Read());
+
+            Console.ReadLine();
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            <img src="../../Content/Images/Generics/1.png" alt="" />
+        </p>
+        <p>
+            The <em><strong>Problem</strong></em> here is that it only accepts <code>double</code>. The <code>Write</code> method only accepts a <code>double</code>, and the <code>Read</code> method only returns a <code>double</code>. I want to use this Circular buffer for other datatypes like <code>Byte</code>, <code>String</code> etc. Let's see a couple of solutions in the next section that do not involve generics.
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">The Object Solution</div>
+    </div>
+    <div class="panel-body">
+        <p>
+            What we are going to do is that in the Circular buffer class, we will replace all the <code>double</code> to <code>object</code>. So now, my buffer stores an array of objects, it Writes an object and Reads an object. Let's see how the code will look like.
+        </p>
+        <p>
+            @Html.DisplayCode(@"
+namespace DataStructures
+{
+    public class CircularBuffer
+    {
+        private object[] _buffer;
+        public int _start;
+        public int _end;
+        public CircularBuffer(int capacity)
+        {
+            _buffer = new object[capacity + 1];
+            _start = 0;
+            _end = 0;
+        }
+
+        public void Write(object value)
+        {
+            _buffer[_end] = value;
+            _end = (_end + 1) % _buffer.Length;
+            if (_end == _start)
+            {
+                _start = (_start + 1) % _buffer.Length;
+            }
+        }
+
+        public object Read()
+        {
+            var result = _buffer[_start];
+            _buffer[_start] = 0.0;
+            if (_start == _end)
+            {
+                return 0.0;
+            }
+
+            _start = (_start + 1) % _buffer.Length;
+
+            return result;
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            And not this allows me to Write <code>String</code> in the buffer. Basically it allows me to write anything(since every type has a base class of <code>object</code>). Let's see that in action. We will now enter <code>String</code>. Note, <code>double</code> still works.
+        </p>
+        <p>
+            <img src="../../Content/Images/Generics/1.png" alt="" />
+        </p>
+        <p>
+            @Html.DisplayCode(@"
+using DataStructures;
+using System;
+
+namespace Client
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            CircularBuffer cb = new CircularBuffer(capacity: 3);
+            cb.Write(""1"");
+            cb.Write(""2"");
+            cb.Write(""3"");
+            cb.Write(""4"");
+            cb.Write(""5"");
+
+            Console.WriteLine(cb.Read());
+            Console.WriteLine(cb.Read());
+            Console.WriteLine(cb.Read());
+
+            //Reading this would result in a default value of a double i.e. 0.0
+            Console.WriteLine(cb.Read());
+
+            Console.ReadLine();
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p><img src="../../Content/Images/Generics/1.png" alt="" /></p>
+        <p>
+            Notice this works because <code>Console.WriteLine</code> knows how to implicitly convert a <code>double</code> to a <code>String</code>(This is what was happening earlier. Not a big deal!) just for the sake of displaying on the Console. And this time it is just displaying <code>String</code> itself.
+        </p>
+        <p>
+            Let's have a couple of different things in the buffer now, let's have a combination of <code>String</code> which is actually a small word that can not be converted to a <code>double</code> and a <code>double</code> value.
+        </p>
+        <p>
+            @Html.DisplayCode(@"
+using DataStructures;
+using System;
+
+namespace Client
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            CircularBuffer cb = new CircularBuffer(capacity: 3);
+            cb.Write(""1"");
+            cb.Write(""2"");
+            cb.Write(""3"");
+            cb.Write(""Hello World!"");
+            cb.Write(""5"");
+
+            Console.WriteLine(cb.Read());
+            Console.WriteLine(cb.Read());
+            Console.WriteLine(cb.Read());
+
+            //Reading this would result in a default value of a double i.e. 0.0
+            Console.WriteLine(cb.Read());
+
+            Console.ReadLine();
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            <img src="../../Content/Images/Generics/2.png" alt="" />
+        </p>
+        <p>
+            So far, so good. Notice the operation being done on the buffer here is just reading and writing. <code>Console.WriteLine</code> does a pretty good job here to convert everything to a <code>String</code> for displaying. Let's say we come back to our Writing of only some <code>String</code> values which can be converted to <code>double</code>. And this time we want to do some operation like addition on the buffer.
+        </p>
+        <p>
+            @Html.DisplayCode(@"
+using DataStructures;
+using System;
+
+namespace Client
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            CircularBuffer cb = new CircularBuffer(capacity: 3);
+            cb.Write(""1"");
+            cb.Write(""2"");
+            cb.Write(""3"");
+            cb.Write(""4"");
+            cb.Write(""5"");
+
+            double sum = 0;
+            for (int i = 0; i < 3; i++)
+            {
+                sum += cb.Read();
+            }
+
+            Console.WriteLine(sum);
+
+            Console.ReadLine();
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>The compiler throws error here saying :</p>
+        <p>
+            <img src="../../Content/Images/Generics/3.png" alt="" />
+        </p>
+        <p>
+            Ok, no problem, we will do a type conversion and the problem will be fixed.
+        </p>
+        <p>
+            @Html.DisplayCode(@"
+using DataStructures;
+using System;
+
+namespace Client
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            CircularBuffer cb = new CircularBuffer(capacity: 3);
+            cb.Write(""1"");
+            cb.Write(""2"");
+            cb.Write(""3"");
+            cb.Write(""4"");
+            cb.Write(""5"");
+
+            double sum = 0;
+            for (int i = 0; i < 3; i++)
+            {
+                sum += Convert.ToDouble(cb.Read());
+            }
+
+            Console.WriteLine(sum);
+
+            Console.ReadLine();
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            <img src="../../Content/Images/Generics/4.png" alt="" />
+        </p>
+        <p>
+            There are some points to notice
+            <ul>
+                <li>It doesn't look correct that we have to convert the type everytime we want to use it. Why shouldn't the Read method return a double.</li>
+                <li>
+                    And since the buffer is an <code>object</code> array. Its possible to write anything in it. See the example above where we entered "Hello World!" in the buffer. Imagine some one doing a Sum operation on that and trying to convert "Hello World!" to a <code>double</code>!!. Of course that would throw an exception.
+                </li>
+                <li>The <code>object</code> array will not be type safe.</li>
+            </ul>
+        </p>
+        <p>
+            There can be an argument upon let's check the value before we add it to the <code>sum</code> variable using <code>value is double</code> in an <code>if</code> condition. First, do we want to keep a lot of different types in a single memory location to use? Second, everytime we store something in the <code>object</code> array, that type is <em><strong>boxed</strong></em> and when read, it is <em><strong>unboxed</strong></em>. Boxing and Unboxing requires separate allocation of memory in the managed heap and it makes our programs slower(obviously because there are extra steps to work with a value, which could have been much easier when using them as their direct types.)
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Copy and Paste Solution</div>
+    </div>
+    <div class="panel-body">
+        <p>
+            All right so we need it for <code>String</code> too. No Problem, just copy paste the code for <code>double</code> and create a new class.
+        </p>
+        <p>
+            @Html.DisplayCode(@"
+namespace DataStructures
+{
+    public class CircularBufferString
+    {
+        private String[] _buffer;
+        public int _start;
+        public int _end;
+        public CircularBufferString(int capacity)
+        {
+            _buffer = new String[capacity + 1];
+            _start = 0;
+            _end = 0;
+        }
+
+        public void Write(String value)
+        {
+            _buffer[_end] = value;
+            _end = (_end + 1) % _buffer.Length;
+            if (_end == _start)
+            {
+                _start = (_start + 1) % _buffer.Length;
+            }
+        }
+
+        public String Read()
+        {
+            var result = _buffer[_start];
+            _buffer[_start] = 0.0;
+            if (_start == _end)
+            {
+                return 0.0;
+            }
+
+            _start = (_start + 1) % _buffer.Length;
+
+            return result;
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>Here we go, we have it for strings too. But wait, i also wanted it for <code>int</code>!! How many times are you going to copy and paste??</p>
+        <p>If you notice the above code, we just changed the Type <code>double</code> to <code>String</code> (forget the class name changing)</p>.
+        <p>
+            What if we could have a placeholder like <code>T</code> instead of <code>double</code> or <code>String</code>. See an example below:
+        </p>
+        <p>
+            @Html.DisplayCode(@"
+namespace DataStructures
+{
+    public class CircularBufferString
+    {
+        private T[] _buffer;
+        public int _start;
+        public int _end;
+        public CircularBufferString(int capacity)
+        {
+            _buffer = new String[capacity + 1];
+            _start = 0;
+            _end = 0;
+        }
+
+        public void Write(T value)
+        {
+            _buffer[_end] = value;
+            _end = (_end + 1) % _buffer.Length;
+            if (_end == _start)
+            {
+                _start = (_start + 1) % _buffer.Length;
+            }
+        }
+
+        public T Read()
+        {
+            var result = _buffer[_start];
+            _buffer[_start] = 0.0;
+            if (_start == _end)
+            {
+                return 0.0;
+            }
+
+            _start = (_start + 1) % _buffer.Length;
+
+            return result;
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>Notice that we are creating a type <code>T</code> when declaring the array, when Writing and when Reading. We want to declare this type <code>T</code> sometime later after compilation.</p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Generics</div>
+    </div>
+    <div class="panel-body">
+        <p>
+            The idea of Generics originated because we wanted to reuse some code that is needed by different types. And we don't want <code>object</code> that can be used <em>instead</em> of any type. We want the Type itself. In a type safe manner. So we write a code:
+            <ul>
+                <li>That can defer the type specification to the client who uses that code.</li>
+                <li>The Internal algorithms of operation are independent of the Type. For example the logic for enumerating over a list of <code>int</code> or <code>string</code> should be same. </li>
+            </ul>
+        </p>
+        <p>
+            This is how it looks:
+            @Html.DisplayCode(@"
+public class CircularBuffer<T>
+{
+    private T[] _buffer;
+
+    //...
+}
+", "c#")
+        </p>
+        <p>
+            Notice <code>@Html.Raw(Html.Encode("CircularBuffer<T>"))</code>. This is the <em>constructor</em> for a class definition. <code>@Html.Raw(Html.Encode("<T>"))</code> is brackets accepting a list of parameters. We CAN have multiple parameters being passed here. These parameters are nothing but a <code>Type</code>. <code>T</code> for <code>Type</code>. <code>@Html.Raw(Html.Encode("CircularBuffer<T>"))</code> is now called <em><strong>CircularBuffer of T</strong></em>
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">A Generic Circular Buffer</div>
+    </div>
+    <div class="panel-body">
+        @Html.DisplayCode(@"
+namespace DataStructures
+{
+    public class CircularBuffer<T>
+    {
+        private T[] _buffer;
+        public int _start;
+        public int _end;
+        public CircularBuffer(int capacity)
+        {
+            _buffer = new T[capacity + 1];
+            _start = 0;
+            _end = 0;
+        }
+
+        public void Write(T value)
+        {
+            _buffer[_end] = value;
+            _end = (_end + 1) % _buffer.Length;
+            if (_end == _start)
+            {
+                _start = (_start + 1) % _buffer.Length;
+            }
+        }
+
+        public T Read()
+        {
+            var result = _buffer[_start];
+            _start = (_start + 1) % _buffer.Length;
+
+            return result;
+        }
+    }
+}
+
+", "c#")
+        <p>
+            @Html.DisplayCode(@"
+using DataStructures;
+using System;
+
+namespace Client
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var cb = new CircularBuffer<string>(capacity: 3);
+            cb.Write(""Hello"");
+            cb.Write(""I"");
+            cb.Write(""Am"");
+            cb.Write(""Suyash"");
+
+            Console.WriteLine(cb.Read());
+            Console.WriteLine(cb.Read());
+            Console.WriteLine(cb.Read());
+
+
+            Console.ReadLine();
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            <img src="../../Content/Images/Generics/5.png" alt="" />
+        </p>
+        <p>Let's proove that it is type safe. Try to insert another type and see it throw a compiler error</p>
+        <p>
+            @Html.DisplayCode(@"
+using DataStructures;
+using System;
+
+namespace Client
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var cb = new CircularBuffer<string>(capacity: 3);
+            cb.Write(""Hello"");
+            cb.Write(""I"");
+            cb.Write(""Am"");
+            cb.Write(""Suyash"");
+            cb.Write(1);
+
+            Console.WriteLine(cb.Read());
+            Console.WriteLine(cb.Read());
+            Console.WriteLine(cb.Read());
+
+
+            Console.ReadLine();
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            <img src="../../Content/Images/Generics/6.png" alt="" />
+        </p>
+        <p>
+            But change it to a Circular buffer of <code>int</code>, change all the values to <code>int</code> and see it work.
+            @Html.DisplayCode(@"
+using DataStructures;
+using System;
+
+namespace Client
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var cb = new CircularBuffer<int>(capacity: 3);
+            cb.Write(1);
+            cb.Write(2);
+            cb.Write(3);
+            cb.Write(4);
+            cb.Write(5);
+
+            Console.WriteLine(cb.Read());
+            Console.WriteLine(cb.Read());
+            Console.WriteLine(cb.Read());
+
+
+            Console.ReadLine();
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            <img src="../../Content/Images/Generics/7.png" alt="" />
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Terminology</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>A class with ended with angle brackets is called a <em><strong>Generic Class</strong></em></li>
+            <li>You can also have Generic Interfaces, Generic Delegates, Generic Structs.</li>
+            <li><code>T</code> is what we call a <em><strong>Type Parameter</strong></em></li>
+            <li><code>T</code> is just conventional you can use <code>X</code>. Basically any name.</li>
+            <li>You can have multiple Type Parameter</li>
+            <li><code>@Html.Raw(Html.Encode("var buffer = new CircularBuffer<double>();"))</code>. Here <code>double</code> is the <em><strong>Type Argument</strong></em>. Only a <code>double</code> can be used for this.</li>
+            <li>When we create Generic Type, passing in a Type Argument, there is a new class definition thats created behind the scenes and ready to be used. <code>@Html.Raw(Html.Encode("CircularBuffer<double>"))</code> is a new Type available to use.</li>
+            <li>
+                <img src="../../Content/Images/Generics/8.png" alt="" />
+            </li>
+        </ul>
+    </div>
+</div>

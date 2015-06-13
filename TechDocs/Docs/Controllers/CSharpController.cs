@@ -23,5 +23,10 @@ namespace Docs.Controllers
         {
             return View();
         }
+
+        public ActionResult Generics()
+        {
+            return View();
+        }
     }
 }
