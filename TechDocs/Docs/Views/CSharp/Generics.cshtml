@@ -625,3 +625,941 @@ namespace Client
         </ul>
     </div>
 </div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Generic Collections</div>
+    </div>
+    <div class="panel-body">
+        <p>Generics and Collections work well together because collection is all about managing and organizing data and quite often you want to organize a specific type of data like keep a list of employee objects around and the list represents a department, a department of employees. Different collections have different weaknesses and capabilities so its good to know about all the options</p>
+        <ul>
+            <li>Array</li>
+            <li>List, Capacity</li>
+            <li>Queue, Enqueue, Dequeue, Peek, Contains</li>
+            <li>Stack, Push, Pop</li>
+            <li>LinkedList</li>
+            <li>Dictionary</li>
+            <li>SortedList, SortedDictionary, SortedSet</li>
+            <li>Concurrent Collections : Multiple writers and readers, thread safe</li>
+            <li>Immutable Collections : Thread safe, modifications produce new collections</li>
+        </ul>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Generic Classes &amp; Interfaces</div>
+    </div>
+    <div class="panel-body">
+        Let's refactor our Circular buffer a little. Here is the code:
+        @Html.DisplayCode(@"
+namespace DataStructures
+{
+    public class CircularBuffer<T>
+    {
+        private T[] _buffer;
+        public int _start;
+        public int _end;
+        public CircularBuffer(int capacity)
+        {
+            _buffer = new T[capacity + 1];
+            _start = 0;
+            _end = 0;
+        }
+
+        public void Write(T value)
+        {
+            _buffer[_end] = value;
+            _end = (_end + 1) % _buffer.Length;
+            if (_end == _start)
+            {
+                _start = (_start + 1) % _buffer.Length;
+            }
+        }
+
+        public T Read()
+        {
+            var result = _buffer[_start];
+            _start = (_start + 1) % _buffer.Length;
+
+            return result;
+        }
+
+        public int Capacity
+        {
+            get { return _buffer.Length; }
+        }
+
+        public bool IsEmpty
+        {
+            get { return _end == _start; }
+        }
+
+        public bool IsFull
+        {
+            get { return (_end + 1) % _buffer.Length == _start; }
+        }
+    }
+}
+
+", "c#")
+        <p>
+            @Html.DisplayCode(@"
+using DataStructures;
+using System;
+
+namespace Client
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var buffer = new CircularBuffer<double>(capacity: 3);
+
+
+            ProcessInput(buffer);
+            ProcessBuffer(buffer);
+
+
+            Console.ReadLine();
+        }
+
+        private static void ProcessBuffer(CircularBuffer<double> buffer)
+        {
+            var sum = 0.0;
+            Console.WriteLine(""Buffer: "");
+            while (!buffer.IsEmpty)
+            {
+                sum += buffer.Read();
+            }
+            Console.WriteLine(sum);
+        }
+
+        private static void ProcessInput(CircularBuffer<double> buffer)
+        {
+            while (true)
+            {
+                var value = 0.0;
+                var input = Console.ReadLine();
+
+                if (double.TryParse(input, out value))
+                {
+                    buffer.Write(value);
+                    continue;
+                }
+                break;
+            }
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            There can be multiple types of such buffers. Let's refactor it out to an interface.
+            @Html.DisplayCode(@"
+namespace DataStructures
+{
+    public interface IBuffer<T>
+    {
+        bool IsEmpty { get; }
+        void Write(T value);
+        T Read();
+    }
+
+
+    public class CircularBuffer<T> : IBuffer<T>
+    {
+        private T[] _buffer;
+        public int _start;
+        public int _end;
+        public CircularBuffer(int capacity)
+        {
+            _buffer = new T[capacity + 1];
+            _start = 0;
+            _end = 0;
+        }
+
+        public void Write(T value)
+        {
+            _buffer[_end] = value;
+            _end = (_end + 1) % _buffer.Length;
+            if (_end == _start)
+            {
+                _start = (_start + 1) % _buffer.Length;
+            }
+        }
+
+        public T Read()
+        {
+            var result = _buffer[_start];
+            _start = (_start + 1) % _buffer.Length;
+
+            return result;
+        }
+
+        public int Capacity
+        {
+            get { return _buffer.Length; }
+        }
+
+        public bool IsEmpty
+        {
+            get { return _end == _start; }
+        }
+
+        public bool IsFull
+        {
+            get { return (_end + 1) % _buffer.Length == _start; }
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            And the Program
+            @Html.DisplayCode(@"
+using DataStructures;
+using System;
+
+namespace Client
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var buffer = new CircularBuffer<double>(capacity: 3);
+
+
+            ProcessInput(buffer);
+            ProcessBuffer(buffer);
+
+
+            Console.ReadLine();
+        }
+
+        private static void ProcessBuffer(IBuffer<double> buffer)
+        {
+            var sum = 0.0;
+            Console.WriteLine(""Buffer: "");
+            while (!buffer.IsEmpty)
+            {
+                sum += buffer.Read();
+            }
+            Console.WriteLine(sum);
+        }
+
+        private static void ProcessInput(IBuffer<double> buffer)
+        {
+            while (true)
+            {
+                var value = 0.0;
+                var input = Console.ReadLine();
+
+                if (double.TryParse(input, out value))
+                {
+                    buffer.Write(value);
+                    continue;
+                }
+                break;
+            }
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            Now i can use some other buffer instead of Circular Buffer. Let's implement it. and let's circular buffer implement the buffer
+            @Html.DisplayCode(@"
+using System.Collections.Generic;
+namespace DataStructures
+{
+    public interface IBuffer<T>
+    {
+        bool IsEmpty { get; }
+        void Write(T value);
+        T Read();
+    }
+
+
+    public class Buffer<T> : IBuffer<T>
+    {
+
+        public Queue<T> _queue = new Queue<T>();
+
+        public virtual bool IsEmpty
+        {
+            get { return _queue.Count == 0; }
+        }
+
+        public virtual void Write(T value)
+        {
+            _queue.Enqueue(value);
+        }
+
+        public virtual T Read()
+        {
+            return _queue.Dequeue();
+        }
+    }
+
+
+    public class CircularBuffer<T> : Buffer<T>
+    {
+        int _capacity;
+        public CircularBuffer(int capacity = 10)
+        {
+            _capacity = capacity;
+        }
+
+        public override void Write(T value)
+        {
+            base.Write(value);
+            if (_queue.Count > _capacity)
+            {
+                _queue.Dequeue();
+            }
+        }
+
+        public bool IsFull { get { return _queue.Count == _capacity; } }
+    }
+}
+
+", "c#")
+        </p>
+
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title"><code>@Html.Raw(Html.Encode("IEnumerable<T>"))</code></div>
+    </div>
+    <div class="panel-body">
+        <p>
+            IEnumerable, IComparer, IEqualityComparer
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Generic Methods</div>
+    </div>
+    <div class="panel-body">
+        <p>
+            @Html.DisplayCode(@"
+using System.Collections.Generic;
+using System.ComponentModel;
+namespace DataStructures
+{
+    public interface IBuffer<T>: IEnumerable<T>
+    {
+        bool IsEmpty { get; }
+        void Write(T value);
+        IEnumerable<TOutput> AsEnumerableOf<TOutput>();
+
+        T Read();
+    }
+
+
+    public class Buffer<T> : IBuffer<T>
+    {
+
+        public Queue<T> _queue = new Queue<T>();
+
+        public virtual bool IsEmpty
+        {
+            get { return _queue.Count == 0; }
+        }
+
+        public virtual void Write(T value)
+        {
+            _queue.Enqueue(value);
+        }
+
+        public virtual T Read()
+        {
+            return _queue.Dequeue();
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return _queue.GetEnumerator();
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+
+        public IEnumerable<TOutput> AsEnumerableOf<TOutput>()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(T));
+            foreach (var item in _queue)
+            {
+                var result = converter.ConvertTo(item, typeof(TOutput));
+                yield return (TOutput)result;
+            }
+        }
+    }
+
+
+    public class CircularBuffer<T> : Buffer<T>
+    {
+        int _capacity;
+        public CircularBuffer(int capacity = 10)
+        {
+            _capacity = capacity;
+        }
+
+        public override void Write(T value)
+        {
+            base.Write(value);
+            if (_queue.Count > _capacity)
+            {
+                _queue.Dequeue();
+            }
+        }
+
+        public bool IsFull { get { return _queue.Count == _capacity; } }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            On using it, the types which can be converted to each other normally will work fine. But for example if you try to convert a <code>double</code> to a <code>DateTime</code>, an exception is thrown.
+        </p>
+        <p>A Generic method need not be a part of a Generic class. It can be a part of a Non-Generic Type</p>
+        <p>
+            Let's move the <code>AsEnumerableOf</code> method in an extension method.
+            @Html.DisplayCode(@"
+using System.Collections.Generic;
+using System.ComponentModel;
+
+namespace DataStructures
+{
+    public static class BufferExtensions
+    {
+        public static IEnumerable<TOutput> AsEnumerableOf<T, TOutput>(this IBuffer<T> buffer)
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(T));
+            foreach (var item in buffer)
+            {
+                TOutput result = (TOutput)converter.ConvertTo(item, typeof(TOutput));
+                yield return result;
+            }
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>Notice the Class Type parameter is now passed in the Generic Method signature. <code>T</code></p>
+        <p>A Type parameter is a part of Generic method signature, if you have another method with the same name and same number of type parameter, the compiler will throw error.</p>
+        <p>In case of extension methods, if there is just one parameter, no need to supply the generic type parameter. It will automatically infer.</p>
+        <p>
+            @Html.DisplayCode(@"
+using DataStructures;
+using System;
+
+namespace Client
+{
+    class Program
+    {
+        static void ConsoleWrite(object data)
+        {
+            Console.WriteLine(data);
+        }
+        static void Main(string[] args)
+        {
+            //var buffer = new CircularBuffer<double>(capacity: 3);
+            var buffer = new DataStructures.Buffer<double>();
+
+            ProcessInput(buffer);
+
+            Printer consoleOut = new Printer(ConsoleWrite);
+            buffer.Dump(consoleOut);
+            //buffer.Dump<double>(consoleOut);
+            Console.WriteLine(""---------"");
+
+            var resultInt =  buffer.AsEnumerableOf<double, int>();
+            foreach (var item in resultInt)
+            {
+                Console.WriteLine(item);
+            }
+
+            ProcessBuffer(buffer);
+
+
+            Console.ReadLine();
+        }
+
+        private static void ProcessBuffer(IBuffer<double> buffer)
+        {
+            var sum = 0.0;
+            Console.WriteLine(""Buffer: "");
+            while (!buffer.IsEmpty)
+            {
+                sum += buffer.Read();
+            }
+            Console.WriteLine(sum);
+        }
+
+        private static void ProcessInput(IBuffer<double> buffer)
+        {
+            while (true)
+            {
+                var value = 0.0;
+                var input = Console.ReadLine();
+
+                if (double.TryParse(input, out value))
+                {
+                    buffer.Write(value);
+                    continue;
+                }
+                break;
+            }
+        }
+    }
+}
+
+", "c#")
+        </p>
+
+        <p>
+            Above example will now be converted to use a generic delegate. Instead of a <code>Printer</code> using an <code>object</code> type, lets defer the type.
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Everyday Delegates</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li><code>Func</code></li>
+            <li><code>Action</code></li>
+            <li><code>Predicate</code></li>
+        </ul>
+        <p>
+            Let's look at <code>Action</code> first. It allows to type a variable that will be a delegate so it points to a method, but that method has to return void. An <code>Action</code> delegate always returns <code>void</code>, but it can take from 0-16 parameters.Those parameters are 0-16 generic Type Arguments. For example <code>@Html.Raw(Html.Encode("Action<double>"))</code> type delegate can only take a method that takes 1 parameter which is of the type <code>double</code> and it has to return <code>void</code>.
+        </p>
+        <p>
+            @Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+
+namespace DataStructures
+{
+    public static class BufferExtensions
+    {
+        public static void Dump<T>(this IBuffer<T> buffer, Action<T> print)
+        {
+            foreach (var item in buffer)
+            {
+                print(item);
+            }
+        }
+        public static IEnumerable<TOutput> AsEnumerableOf<T, TOutput>(this IBuffer<T> buffer)
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(T));
+            foreach (var item in buffer)
+            {
+                TOutput result = (TOutput)converter.ConvertTo(item, typeof(TOutput));
+                yield return result;
+            }
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            @Html.DisplayCode(@"
+using DataStructures;
+using System;
+
+namespace Client
+{
+    class Program
+    {
+        static void ConsoleWrite(double data)
+        {
+            Console.WriteLine(data);
+        }
+        static void Main(string[] args)
+        {
+            //var buffer = new CircularBuffer<double>(capacity: 3);
+            var buffer = new DataStructures.Buffer<double>();
+
+            ProcessInput(buffer);
+
+            Action<double> print = Console.WriteLine;
+            buffer.Dump(print);
+            //buffer.Dump<double>(consoleOut);
+            Console.WriteLine(""---------"");
+
+            var resultInt =  buffer.AsEnumerableOf<double, int>();
+            foreach (var item in resultInt)
+            {
+                Console.WriteLine(item);
+            }
+
+            ProcessBuffer(buffer);
+
+
+            Console.ReadLine();
+        }
+
+        private static void ProcessBuffer(IBuffer<double> buffer)
+        {
+            var sum = 0.0;
+            Console.WriteLine(""Buffer: "");
+            while (!buffer.IsEmpty)
+            {
+                sum += buffer.Read();
+            }
+            Console.WriteLine(sum);
+        }
+
+        private static void ProcessInput(IBuffer<double> buffer)
+        {
+            while (true)
+            {
+                var value = 0.0;
+                var input = Console.ReadLine();
+
+                if (double.TryParse(input, out value))
+                {
+                    buffer.Write(value);
+                    continue;
+                }
+                break;
+            }
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            Instead of a Typed delegate such as <code>Console.WriteLine</code>. We can use an anonymous delegate as below:
+            @Html.DisplayCode(@"
+Action<double> print = delegate(double data)
+            {
+                Console.WriteLine(data);
+            };
+", "c#")
+        </p>
+        <p>
+            Another way of writing an anonymous method is to use a lambda expression as below:
+            @Html.DisplayCode(@"
+Action<double> print = (d) => Console.WriteLine(d);
+", "c#")
+        </p>
+        <p>
+            @Html.DisplayCode(@"
+using DataStructures;
+using System;
+
+namespace Client
+{
+    class Program
+    {
+        static void ConsoleWrite(double data)
+        {
+            Console.WriteLine(data);
+        }
+        static void Main(string[] args)
+        {
+            //var buffer = new CircularBuffer<double>(capacity: 3);
+            var buffer = new DataStructures.Buffer<double>();
+
+            ProcessInput(buffer);
+
+            //Action<double> print = delegate(double data)
+            //{
+            //    Console.WriteLine(data);
+            //};
+            //Action<double> print = (d) => Console.WriteLine(d);
+            buffer.Dump(d=>Console.WriteLine(d));
+            //buffer.Dump<double>(consoleOut);
+            Console.WriteLine(""---------"");
+
+            var resultInt =  buffer.AsEnumerableOf<double, int>();
+            foreach (var item in resultInt)
+            {
+                Console.WriteLine(item);
+            }
+
+            ProcessBuffer(buffer);
+
+
+            Console.ReadLine();
+        }
+
+        private static void ProcessBuffer(IBuffer<double> buffer)
+        {
+            var sum = 0.0;
+            Console.WriteLine(""Buffer: "");
+            while (!buffer.IsEmpty)
+            {
+                sum += buffer.Read();
+            }
+            Console.WriteLine(sum);
+        }
+
+        private static void ProcessInput(IBuffer<double> buffer)
+        {
+            while (true)
+            {
+                var value = 0.0;
+                var input = Console.ReadLine();
+
+                if (double.TryParse(input, out value))
+                {
+                    buffer.Write(value);
+                    continue;
+                }
+                break;
+            }
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            @Html.DisplayCode(@"
+using DataStructures;
+using System;
+
+namespace Client
+{
+    class Program
+    {
+        static void ConsoleWrite(double data)
+        {
+            Console.WriteLine(data);
+        }
+        static void Main(string[] args)
+        {
+            //var buffer = new CircularBuffer<double>(capacity: 3);
+            var buffer = new DataStructures.Buffer<double>();
+
+            ProcessInput(buffer);
+
+            //Action<double> print = delegate(double data)
+            //{
+            //    Console.WriteLine(data);
+            //};
+            Action<bool> print = (d) => Console.WriteLine(d);
+
+            Func<double, double> square = d => d * d;
+            Func<double, double, double> add = (x, y) => x + y;
+            Predicate<double> isLessThanTen = d => d < 10;
+
+            print(isLessThanTen(square(add(3, 5))));
+
+
+            buffer.Dump(d=>Console.WriteLine(d));
+            //buffer.Dump<double>(consoleOut);
+            Console.WriteLine(""---------"");
+
+            var resultInt =  buffer.AsEnumerableOf<double, int>();
+            foreach (var item in resultInt)
+            {
+                Console.WriteLine(item);
+            }
+
+            ProcessBuffer(buffer);
+
+
+            Console.ReadLine();
+        }
+
+        private static void ProcessBuffer(IBuffer<double> buffer)
+        {
+            var sum = 0.0;
+            Console.WriteLine(""Buffer: "");
+            while (!buffer.IsEmpty)
+            {
+                sum += buffer.Read();
+            }
+            Console.WriteLine(sum);
+        }
+
+        private static void ProcessInput(IBuffer<double> buffer)
+        {
+            while (true)
+            {
+                var value = 0.0;
+                var input = Console.ReadLine();
+
+                if (double.TryParse(input, out value))
+                {
+                    buffer.Write(value);
+                    continue;
+                }
+                break;
+            }
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            There is one more Generic delegate not used daily but good to talk about. It is the <code>Converter</code> delegate that accepts to type arguments i.e. the "from" type and the "to" type. Let's see the code.
+            @Html.DisplayCode(@"
+public static IEnumerable<TOutput> Map<T, TOutput>(this IBuffer<T> buffer, Converter<T, TOutput> converter)
+        {
+            return buffer.Select(x => converter(x));
+        }
+", "c#")
+            @Html.DisplayCode(@"
+
+Converter<double, DateTime> converter = d => new DateTime(2015, 6, 13).AddDays(d);
+
+var resultInDate = buffer.Map<double, DateTime>(converter);
+
+foreach (var item in resultInDate)
+{
+    Console.WriteLine(item);
+}
+", "c#")
+        </p>
+        <p>
+            Or
+            @Html.DisplayCode(@"
+//Converter<double, DateTime> converter = d => new DateTime(2015, 6, 13).AddDays(d);
+
+            var resultInDate = buffer.Map<double, DateTime>(d => new DateTime(2015, 6, 13).AddDays(d));
+", "c#")
+        </p>
+        <p>
+            Or considering the fact that lambdas are pretty smart.
+            @Html.DisplayCode(@"
+//Converter<double, DateTime> converter = d => new DateTime(2015, 6, 13).AddDays(d);
+
+            var resultInDate = buffer.Map(d => new DateTime(2015, 6, 13).AddDays(d));
+", "c#")
+        </p>
+        <p>
+            The above code displays that the type arguments are inferred by buffer which is of type <code>double</code> which is an extension method if <code>@Html.Raw(Html.Encode("IBuffer<double>"))</code>. and return type of the lambda which is a <code>DateTime</code>
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Events and Generics</div>
+    </div>
+    <div class="panel-body">
+        <p>
+            Let's say we want to raise an event when the circular buffer is full and somthing is being discarded. We want to raise the event showing the discarded value and the new item that is discarding that value.
+            @Html.DisplayCode(@"
+public class CircularBuffer<T> : Buffer<T>
+    {
+        int _capacity;
+        public CircularBuffer(int capacity = 10)
+        {
+            _capacity = capacity;
+        }
+
+        public override void Write(T value)
+        {
+            base.Write(value);
+            if (_queue.Count > _capacity)
+            {
+                var discarded = _queue.Dequeue();
+                var newItem = value;
+                var args = new ItemDiscardedEventArgs<T>(discarded, newItem);
+                ItemDiscarded(this, args);
+            }
+        }
+
+        public event EventHandler<ItemDiscardedEventArgs<T>> ItemDiscarded;
+
+        public bool IsFull { get { return _queue.Count == _capacity; } }
+    }
+", "c#")
+        </p>
+        <p>
+            The Program
+@Html.DisplayCode(@"
+using DataStructures;
+using System;
+
+namespace Client
+{
+    class Program
+    {
+        static void ConsoleWrite(double data)
+        {
+            Console.WriteLine(data);
+        }
+        static void Main(string[] args)
+        {
+            var buffer = new CircularBuffer<double>(capacity: 3);
+            buffer.ItemDiscarded += buffer_ItemDiscarded;
+
+            ProcessInput(buffer);
+
+
+            ProcessBuffer(buffer);
+
+
+            Console.ReadLine();
+        }
+
+        static void buffer_ItemDiscarded(object sender, ItemDiscardedEventArgs<double> e)
+        {
+            Console.WriteLine(""Buffer Full. Discarded {0} New Item is {1}"", e.Discarded, e.NewItem);
+        }
+
+        private static void ProcessBuffer(IBuffer<double> buffer)
+        {
+            var sum = 0.0;
+            Console.WriteLine(""Buffer: "");
+            while (!buffer.IsEmpty)
+            {
+                sum += buffer.Read();
+            }
+            Console.WriteLine(sum);
+        }
+
+        private static void ProcessInput(IBuffer<double> buffer)
+        {
+            while (true)
+            {
+                var value = 0.0;
+                var input = Console.ReadLine();
+
+                if (double.TryParse(input, out value))
+                {
+                    buffer.Write(value);
+                    continue;
+                }
+                break;
+            }
+        }
+    }
+}
+
+", "c#")
+        </p>
+    </div>
+</div>
