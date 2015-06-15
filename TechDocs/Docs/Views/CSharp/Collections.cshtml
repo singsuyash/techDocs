@@ -2305,3 +2305,232 @@ namespace BasicArrayOps
         <p><img src="../../Content/Images/Enumerator/2.png" alt="" /></p>
     </div>
 </div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title"><code>foreach</code> loop</div>
+    </div>
+    <div class="panel-body">
+        <p>
+            <img src="../../Content/Images/Collection/5.png" alt="" />
+        </p>
+        <p>
+            <img src="../../Content/Images/Collection/6.png" alt="" />
+        </p>
+        <p>
+            But if the collection is an array, it internally uses a <code>for</code> loop.
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Why Don't Collections Enumerate themselves</div>
+    </div>
+    <div class="panel-body">
+        <p>
+            Why is the enumerator a completely separate object from a collection. Each collection internally has its own collection implementation. There could have been a method called enumerate in the collection interface itself. In the implementation of that method, use a for loop to iterate over the internal implementation.
+        </p>
+        <p>
+            The reason is : "What happens if you want multiple clients to enumerate the same collection". Example: 2 threads calling the same collection. Or a nested foreach to the same collection. You don't want <code>MoveNext()</code> of the internal <code>foreach</code> to make a change for the outer <code>foreach</code>. This is why a collection should spit a new enumerator instance.
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Modifying while Enumerating</div>
+    </div>
+    <div class="panel-body">
+        <p>
+            Enumerators can only be used to read the contents of a collection. They can not be used to modify which elements are in a collection. <code>@Html.Raw(Html.Encode("IEnumerator<T>"))</code> does not exposes any method that allows you to modify a collection. But it is possible to modify the collection by some other code even when the collection is being enumerated. Actually if the collection is modified while being enumerated, it throws an exception saying that the collection can no longer be enumerated over because the collection is modified.
+        </p>
+        <p>
+            Most collections internally store a version number that describes that a collection was changed.
+        </p>
+        <p>
+            This works for arrays. because they are not enumerated over using <code>@Html.Raw(Html.Encode("IEnumerator<T>"))</code>.
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Writing your own <code>Enumerator</code></div>
+    </div>
+    <div class="panel-body">
+        @Html.DisplayCode(@"
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+
+namespace BasicArrayOps
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            AllDaysOfWeek daysOfWeek = new AllDaysOfWeek();
+            foreach (var day in daysOfWeek)
+            {
+                Console.WriteLine(day);
+            }
+
+
+            Console.ReadLine();
+        }
+    }
+
+    public class AllDaysOfWeek : IEnumerable<string>
+    {
+
+        public IEnumerator<string> GetEnumerator()
+        {
+            yield return ""Monday"";
+            yield return ""Tuesday"";
+            yield return ""Wednesday"";
+            yield return ""Thursday"";
+            yield return ""Friday"";
+            yield return ""Saturday"";
+            yield return ""Sunday"";
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+    }
+    
+}
+
+
+", "c#")
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Enumerable Covariance</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>Array covariance is allowed implicitly.</li>
+            <li>Other collections covariance is not allowed directly</li>
+            <li>but it is allowed for <code>@Html.Raw(Html.Encode("IEnumerable<T>"))</code> just for reading. It is not allowed for writing.</li>
+            <li>It is also allowed for readonly interfaces.</li>
+        </ul>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Multidimensional Arrays and Bounds</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>
+                Multidimensional Arrays
+                <ul>
+                    <li>What they are</li>
+                </ul>
+            </li>
+            <li>
+                Rank and Bounds
+                <ul>
+                    <li>Different array index ranges</li>
+                </ul>
+            </li>
+            <li>
+                Jagged Arrays
+                <ul>
+                    <li>What they are</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Multidimensional Arrays</div>
+    </div>
+    <div class="panel-body">
+        <p>
+            <ul>
+                <li>More than one index</li>
+                <li>Only available on array collection</li>
+                <li>Syntax : <code>float[,] floatArray2d = new float[4,3]</code> or <code>float[,,] floatArray3d = new float[2,3,4]</code> and so on.</li>
+                <li>The number of indices required is the dimension or the <em><strong>Rank</strong></em> of an array.</li>
+            </ul>
+        </p>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Length and Rank</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>
+                <code>Array.GetLength(index)</code>
+            </li>
+            <li><code>Array.Rank</code></li>
+        </ul>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Bounds, GetLowerBound() and GetUpperBound()</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li><img src="../../Content/Images/Collection/7.png" alt="" /></li>
+            <li><code>Array.GetLowerBound()</code>, <code>Array.GetUpperBound()</code></li>
+        </ul>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Jagged Arrays</div>
+    </div>
+    <div class="panel-body">
+        <p>Array of Arrays</p>
+        <p>
+            <code>float[][] floatArrayJagged</code>
+        </p>
+        <p>
+            <code>float[][] tempsGrid = new float[4][3]</code> Throws a compiler error. This is because i am declaring the outer array here. The outer array only knows that it is to store arrays of floats. It doesn't know anything about the length of the inner arrays because array length is not part of the type, so remove the 3. <code>float[][] tempsGrid = new float[4][]</code>
+        </p>
+        <p>
+<img src="../../Content/Images/Collection/8.png" alt="" />
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Jagged vs Multidimensional</div>
+    </div>
+    <div class="panel-body">
+        <p>concept applies to arrays <img src="../../Content/Images/Collection/9.png" alt="" />
+
+        </p>
+        <p>concept applies to all other collections<img src="../../Content/Images/Collection/10.png" alt="" />
+
+        </p>
+    </div>
+</div>

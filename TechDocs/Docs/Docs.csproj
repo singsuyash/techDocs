@@ -178,9 +178,15 @@
     <Content Include="Content\Images\collectionOperations.png" />
     <Content Include="Content\Images\CollectionsToday.png" />
     <Content Include="Content\Images\Collection\1.png" />
+    <Content Include="Content\Images\Collection\10.png" />
     <Content Include="Content\Images\Collection\2.png" />
     <Content Include="Content\Images\Collection\3.png" />
     <Content Include="Content\Images\Collection\4.png" />
+    <Content Include="Content\Images\Collection\5.png" />
+    <Content Include="Content\Images\Collection\6.png" />
+    <Content Include="Content\Images\Collection\7.png" />
+    <Content Include="Content\Images\Collection\8.png" />
+    <Content Include="Content\Images\Collection\9.png" />
     <Content Include="Content\Images\Dictionary\1.png" />
     <Content Include="Content\Images\Dictionary\2.png" />
     <Content Include="Content\Images\Dictionary\3.png" />
