@@ -1499,7 +1499,7 @@ public class CircularBuffer<T> : Buffer<T>
         </p>
         <p>
             The Program
-@Html.DisplayCode(@"
+            @Html.DisplayCode(@"
 using DataStructures;
 using System;
 
@@ -1560,6 +1560,1040 @@ namespace Client
 }
 
 ", "c#")
+        </p>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Generic Constraints</div>
+    </div>
+    <div class="panel-body">
+        Force a type parameter to have certain characteristics
+        <ul>
+            <li>Be a reference type or value type</li>
+            <li>Implement an interface</li>
+            <li>Derive from a base class</li>
+            <li>Have a default constructor</li>
+            <li>Be (or derive from) another generic type parameter</li>
+        </ul>
+        <p>
+            Let's begin with some models
+            @Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace QueryIt
+{
+    public class Person
+    {
+        public string Name { get; set; }
+    }
+
+    public class Employee : Person
+    {
+        public int Id { get; set; }
+        public virtual void DoWork()
+        {
+            Console.WriteLine(""Doing real Work"");
+        }
+    }
+
+    public class Manager : Employee
+    {
+        public override void DoWork()
+        {
+            Console.WriteLine(""Create a meeting"");
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            And now let's add Entity Framework connect our model. After having Entity Framework, Let's have the below code:
+            @Html.DisplayCode(@"
+using System;
+using System.Data.Entity;
+using System.Linq;
+
+namespace QueryIt
+{
+    public class EmployeeDb : DbContext
+    {
+        public DbSet<Employee> Employees { get; set; }
+        public DbSet<Manager> Managers { get; set; }
+    }
+
+    public interface IRepository<T> : IDisposable
+    {
+        void Add(T newEntity);
+        void Delete(T entity);
+        T FindById(int id);
+        IQueryable<T> FindAll();
+        int Commit();
+    }
+
+    public class SqlRepository<T> : IRepository<T>
+    {
+        private DbContext _ctx;
+        private DbSet<T> _set;
+
+        public SqlRepository(DbContext ctx)
+        {
+            _ctx = ctx;
+            _set = _ctx.Set<T>();
+        }
+
+        public void Add(T newEntity)
+        {
+            _set.Add(newEntity);
+        }
+
+        public void Delete(T entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public T FindById(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IQueryable<T> FindAll()
+        {
+            throw new NotImplementedException();
+        }
+
+        public int Commit()
+        {
+            return _ctx.SaveChanges();
+        }
+
+        public void Dispose()
+        {
+            _ctx.Dispose();
+        }
+    }
+
+}
+
+", "c#")
+        </p>
+        <p>
+            And notice that the compiler is not happy when we build this code. It Says:
+        </p>
+        <p>
+            <img src="../../Content/Images/Generics/9.png" alt="" />
+        </p>
+        <p>
+            Before we fix this, let's jump in the <code>DbSet</code> definition once:
+        </p>
+        <p>
+            <img src="../../Content/Images/Generics/10.png" alt="" />
+        </p>
+        <p>
+            <code>@Html.Raw(Html.Encode("SqlRepository<T>"))</code> is confident that i can accept any type as my type argument. But if it does accepts a primitive type, the <code>DbSet</code> will be unhappy because it can only accept a reference type. So Let's fix the code:
+            @Html.DisplayCode(@"
+public class SqlRepository<T> : IRepository<T> where T : class
+    {
+        private DbContext _ctx;
+        private DbSet<T> _set;
+
+        public SqlRepository(DbContext ctx)
+        {
+            _ctx = ctx;
+            _set = _ctx.Set<T>();
+        }
+
+        public void Add(T newEntity)
+        {
+            _set.Add(newEntity);
+        }
+
+        public void Delete(T entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public T FindById(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IQueryable<T> FindAll()
+        {
+            throw new NotImplementedException();
+        }
+
+        public int Commit()
+        {
+            return _ctx.SaveChanges();
+        }
+
+        public void Dispose()
+        {
+            _ctx.Dispose();
+        }
+    }
+", "c#")
+        </p>
+        <p>
+            @Html.DisplayCode(@"
+using System;
+using System.Data.Entity;
+using System.Linq;
+
+namespace QueryIt
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+
+            Database.SetInitializer(new DropCreateDatabaseAlways<EmployeeDb>());
+
+            using (IRepository<Employee> employeeRepository = new SqlRepository<Employee>(new EmployeeDb()))
+            {
+                AddEmployees(employeeRepository);
+                CountEmployees(employeeRepository);
+            }
+
+
+        }
+
+        private static void CountEmployees(IRepository<Employee> employeeRepository)
+        {
+            Console.WriteLine(employeeRepository.FindAll().Count());
+        }
+
+        private static void AddEmployees(IRepository<Employee> employeeRepository)
+        {
+            employeeRepository.Add(new Employee { Name = ""Scott"" });
+            employeeRepository.Add(new Employee { Name = ""Chris"" });
+            employeeRepository.Commit();
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            <img src="../../Content/Images/Generics/11.png" alt="" />
+        </p>
+        <p>
+            Let's talk a little about <em><strong>Interface Constraint</strong></em>. Let's say our little <code>Add</code> method wants to have a validation before it adds something to the database. Like so:
+            @Html.DisplayCode(@"
+public void Add(T newEntity)
+        {
+            if (newEntity.IsValid())
+            {
+
+            }
+            _set.Add(newEntity);
+        }
+", "c#")
+        </p>
+        <p>
+            But this throws a compiler error that the type <code>T</code> does not implements <code>IsValid</code>. This is because every Type Parameter unless constrained derives from <code>System.Object</code> and currently only has methods that <code>System.Object</code> implements like <code>ToString()</code>, <code>GetHashCode()</code> etc.
+        </p>
+        <p>
+            In order to make something available to <code>T</code> lets have another Interface constraint like so:
+            @Html.DisplayCode(@"
+public interface IEntity
+    {
+        bool IsValid();
+    }
+
+    public class Person
+    {
+        public string Name { get; set; }
+    }
+
+    public class Employee : Person //,IEntity
+    {
+        public int Id { get; set; }
+        public virtual void DoWork()
+        {
+            Console.WriteLine(""Doing real Work"");
+        }
+    }
+", "c#")
+            @Html.DisplayCode(@"
+public class SqlRepository<T> : IRepository<T> where T : class, IEntity
+    {
+        private DbContext _ctx;
+        private DbSet<T> _set;
+
+        public SqlRepository(DbContext ctx)
+        {
+            _ctx = ctx;
+            _set = _ctx.Set<T>();
+        }
+
+        public void Add(T newEntity)
+        {
+            if (newEntity.IsValid())
+            {
+
+            }
+            _set.Add(newEntity);
+        }
+
+        public void Delete(T entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public T FindById(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IQueryable<T> FindAll()
+        {
+            return _set;
+        }
+
+        public int Commit()
+        {
+            return _ctx.SaveChanges();
+        }
+
+        public void Dispose()
+        {
+            _ctx.Dispose();
+        }
+    }
+", "c#")
+        </p>
+
+        <p>
+            The compiler is happy the way we implemented our <code>SqlRepository</code>. It only throws a compiler error now where we instantiate a <code>SqlRepository</code>. The Type Argument for <code>SqlRepository</code> must implement <code>IEntity</code>.
+
+        </p>
+        <p>
+            <img src="../../Content/Images/Generics/12.png" alt="" />
+        </p>
+        <p>
+            So let's fix the <code>Employee</code> class now.
+            @Html.DisplayCode(@"
+public class Employee : Person ,IEntity
+    {
+        public int Id { get; set; }
+        public virtual void DoWork()
+        {
+            Console.WriteLine(""Doing real Work"");
+        }
+
+        public bool IsValid()
+        {
+            return true;
+        }
+    }
+", "c#")
+        </p>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">More about constraints</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>Either <code>class</code> or <code>struct</code> can be applied. And it should be written before any Interface constraint.</li>
+            <li>Either a concrete Type or class/struct can appear as a constraint. not both.</li>
+            <li>
+                A constraint can come from a Type Parameter like so:
+                @Html.DisplayCode(@"
+public class SqlRepository<T, T2> : IRepository<T> where T : T2, IEntity
+", "c#")
+                This does not makes much sense in this context, but this is available.
+            </li>
+            <li>
+                In case you try to initialize <code>T</code> like so:
+                @Html.DisplayCode(@"
+public T FindById(int id)
+{
+    T entity = new T();
+
+    return T;
+}
+", "c#")
+                This will throw a compiler error because you are not sure if T could be instantiated by a <code>new</code> operator or not. So we apply another constraint here like so:
+                @Html.DisplayCode(@"
+public class SqlRepository<T> : IRepository<T> where T : class, IEntity, new()
+", "c#")
+                The <code>new()</code> constraint always comes at last. Now the compiler will always check if the type <code>T</code> has a default constructor.
+            </li>
+            <li>
+                In case you have another generic Type parameter <code>T2</code> then you apply the constraint like so:
+                @Html.DisplayCode(@"
+public class SqlRepository<T, T2> : IRepository<T> where T : class, IEntity, new()
+                                                   where T2 : class, IEntity //...
+", "c#")
+            </li>
+            <li>
+                Its perfectly leagal to have constraints applied to one of the interfaces directly, but try to avoid this.
+            </li>
+        </ul>
+        <p>
+            Here is the final code till now:
+            @Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace QueryIt
+{
+
+    public interface IEntity
+    {
+        bool IsValid();
+    }
+
+    public class Person
+    {
+        public string Name { get; set; }
+    }
+
+    public class Employee : Person ,IEntity
+    {
+        public int Id { get; set; }
+        public virtual void DoWork()
+        {
+            Console.WriteLine(""Doing real Work"");
+        }
+
+        public bool IsValid()
+        {
+            return true;
+        }
+    }
+
+    public class Manager : Employee
+    {
+        public override void DoWork()
+        {
+            Console.WriteLine(""Create a meeting"");
+        }
+    }
+}
+
+", "c#")
+            @Html.DisplayCode(@"
+using System;
+using System.Data.Entity;
+using System.Linq;
+
+namespace QueryIt
+{
+    public class EmployeeDb : DbContext
+    {
+        public DbSet<Employee> Employees { get; set; }
+        public DbSet<Manager> Managers { get; set; }
+    }
+
+    public interface IRepository<T> : IDisposable
+    {
+        void Add(T newEntity);
+        void Delete(T entity);
+        T FindById(int id);
+        IQueryable<T> FindAll();
+        int Commit();
+    }
+
+    public class SqlRepository<T> : IRepository<T> where T : class, IEntity
+    {
+        private DbContext _ctx;
+        private DbSet<T> _set;
+
+        public SqlRepository(DbContext ctx)
+        {
+            _ctx = ctx;
+            _set = _ctx.Set<T>();
+        }
+
+        public void Add(T newEntity)
+        {
+            if (newEntity.IsValid())
+            {
+
+            }
+            _set.Add(newEntity);
+        }
+
+        public void Delete(T entity)
+        {
+            _set.Remove(entity);
+        }
+
+        public T FindById(int id)
+        {
+            return _set.Find(id);
+        }
+
+        public IQueryable<T> FindAll()
+        {
+            return _set;
+        }
+
+        public int Commit()
+        {
+            return _ctx.SaveChanges();
+        }
+
+        public void Dispose()
+        {
+            _ctx.Dispose();
+        }
+    }
+
+}
+
+", "c#")
+            @Html.DisplayCode(@"
+using System;
+using System.Data.Entity;
+using System.Linq;
+
+namespace QueryIt
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+
+            Database.SetInitializer(new DropCreateDatabaseAlways<EmployeeDb>());
+
+            using (IRepository<Employee> employeeRepository = new SqlRepository<Employee>(new EmployeeDb()))
+            {
+                AddEmployees(employeeRepository);
+                CountEmployees(employeeRepository);
+                QueryEmployees(employeeRepository);
+            }
+
+            Console.ReadLine();
+        }
+
+        private static void QueryEmployees(IRepository<Employee> employeeRepository)
+        {
+            var employee = employeeRepository.FindById(1);
+            Console.WriteLine(employee.Name);
+        }
+
+        private static void CountEmployees(IRepository<Employee> employeeRepository)
+        {
+            Console.WriteLine(employeeRepository.FindAll().Count());
+        }
+
+        private static void AddEmployees(IRepository<Employee> employeeRepository)
+        {
+            employeeRepository.Add(new Employee { Name = ""Scott"" });
+            employeeRepository.Add(new Employee { Name = ""Chris"" });
+            employeeRepository.Commit();
+        }
+    }
+}
+
+", "c#")
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Covariance</div>
+    </div>
+    <div class="panel-body">
+        Let's add another method in our <code>Program.cs</code>
+        @Html.DisplayCode(@"
+private static void DumpPeople(IRepository<Employee> employeeRepository)
+{
+    var employees = employeeRepository.FindAll();
+    foreach (var employee in employees)
+    {
+        Console.WriteLine(employee.Name);
+    }
+}
+", "c#")
+        <p>
+            In case we just want to dump the names, it should be in the spirit of good object oriented programming to convert this method to accept <code>@Html.Raw(Html.Encode("IRepository<Person>"))</code>. And since <code>Employee</code> is a <code>Person</code> this piece of logic makes sense:
+            @Html.DisplayCode(@"
+private static void DumpPeople(IRepository<Person> employeeRepository)
+{
+    var employees = employeeRepository.FindAll();
+    foreach (var employee in employees)
+    {
+        Console.WriteLine(employee.Name);
+    }
+}
+", "c#")
+        <p>
+            And use it as such:
+            @Html.DisplayCode(@"
+using (IRepository<Employee> employeeRepository = new SqlRepository<Employee>(new EmployeeDb()))
+{
+    AddEmployees(employeeRepository);
+    CountEmployees(employeeRepository);
+    QueryEmployees(employeeRepository);
+    DumpPeople(employeeRepository);
+}
+", "c#")
+        </p>
+        <p>
+            But, this throws a compiler error: And it seems odd from the perspective of Object Oriented Programming.
+        </p>
+        <p>
+            <img src="../../Content/Images/Generics/13.png" alt="" />
+        </p>
+        <p>
+            Notice this is not the case with <code>@Html.Raw(Html.Encode("IEnumerable<T>"))</code>.
+            @Html.DisplayCode(@"
+IEnumerable<Employee> temp = employeeRepository.FindAll();
+IEnumerable<Person> temp = employeeRepository.FindAll();
+", "c#")
+        </p>
+        <p>The above code does not throws any compiler error. <code>@Html.Raw(Html.Encode("IQueryable<T>"))</code> implements <code>@Html.Raw(Html.Encode("IEnumerable<T>"))</code>. In the above code <code>@Html.Raw(Html.Encode("IQueryable<Employee>"))</code> can be assigned to both <code>@Html.Raw(Html.Encode("IEnumerable<Employee>"))</code> and <code>@Html.Raw(Html.Encode("IEnumerable<Person>"))</code>  If the above works fine, what is wrong with <code>@Html.Raw(Html.Encode("IRepository<T>"))</code></p>
+        <p>
+            Well if we see the definition of <code>@Html.Raw(Html.Encode("IEnumerable<T>"))</code> in the metadata:
+            @Html.DisplayCode(@"
+using System.Collections;
+using System.Runtime.CompilerServices;
+
+namespace System.Collections.Generic
+{
+    public interface IEnumerable<out T> : IEnumerable
+    {
+        IEnumerator<T> GetEnumerator();
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            Notice the <code>out</code> keyword with the Type parameter. <code>out</code> is a <em><strong>Generic Modifier</strong></em>. And it means that <code>@Html.Raw(Html.Encode("IEnumerable<T>"))</code> is <em><strong>Covariant</strong></em>. This is in contrast to when the Generic Modifier is not present. That will be <em><strong>Invariant</strong></em>. As the name implies there is no <em><strong>variance</strong></em>.
+        </p>
+        <p>
+            The methods inside a covariant interface are allowed to return a type that is more derived than the type specified by the generic type parameter. Notice, more derived. In other words, a covariant interface like <code>@Html.Raw(Html.Encode("IEnumerable"))</code> would allow <code>GetEnumerator</code> to return <code>@Html.Raw(Html.Encode("IEnumerable<Employee>"))</code> even when the <code>T</code> is type <code>Person</code>. <code>Employee</code> is more derived than <code>Person</code>.
+        </p>
+        <p>
+            And that makes a lot of sense from an object-oriented point of view. If something is always giving me back <code>Employee</code> objects, why can't i just treat those objects as <code>Person</code> objects since every employee is a person. It's just that in c# that does require the <code>out</code> modifier to explicitly make the interface covariant, and covariance only works with <code>delegate</code>s and <code>interface</code>s.
+        </p>
+        <p>
+            Let's go back to our code and make <code>@Html.Raw(Html.Encode("IRepository<T>"))</code> covariant.
+            @Html.DisplayCode(@"
+public interface IRepository<out T> : IDisposable
+{
+    void Add(T newEntity);
+    void Delete(T entity);
+    T FindById(int id);
+    IQueryable<T> FindAll();
+    int Commit();
+}
+", "c#")
+        </p>
+        <p>
+            But now the compiler gives me some other errors:
+        </p>
+        <p>
+            <img src="../../Content/Images/Generics/14.png" alt="" />
+        </p>
+        <p>
+            The reason for these errors is that covariance is only supported when you have methods returning the covariant type parameter. It's dangerous and illeagal as far as the c# compiler is concerned to make an interface covariant when methods take parameters of type <code>T</code>. And if you think very deeply about this, it makes sense.
+        </p>
+        <p>
+            Imagine i have an <code>@Html.Raw(Html.Encode("IRepository<Employee>"))</code> and i pass it to someone who treats it as an <code>@Html.Raw(Html.Encode("IRepository<Person>"))</code>. It would be ok to read objects from that repository because all the objects it returns are Employees which derive from Person, so that's never going to cause a problem, but it would be bad to give that repository a Person as a parameter because the repository might try to interact with it or save it or use some characteristic of an Employee when the object it got was really only a Person.(<code>Person</code> object might not contain all the properties of <code>Employee</code> object.) So, can i make <code>@Html.Raw(Html.Encode("IRepository<T>"))</code> covariant?
+        </p>
+        <p>
+            The answer would be no. But there are work arounds. Divide <code>@Html.Raw(Html.Encode("IRepository<T>"))</code> to separate interfaces, one that contains read operations and the other that contains write operations.
+            @Html.DisplayCode(@"
+ public interface IReadOnlyRepository<out T> : IDisposable
+{
+    T FindById(int id);
+    IQueryable<T> FindAll();
+}
+
+public interface IRepository<T> : IReadOnlyRepository<T> ,IDisposable
+{
+    void Add(T newEntity);
+    void Delete(T entity);
+    int Commit();
+}
+", "c#")
+        </p>
+        <p>
+            And also change the signature for <code>DumpPeople</code> like so:
+            @Html.DisplayCode(@"
+private static void DumpPeople(IReadOnlyRepository<Person> employeeRepository)
+{
+    var employees = employeeRepository.FindAll();
+    foreach (var employee in employees)
+    {
+        Console.WriteLine(employee.Name);
+    }
+}
+", "c#")
+        </p>
+        <p>
+            So this is a scenario of why covariance is requried. This can be generalized to <em>I want to use some logic and work with base types as much as possible and covariance helps to enable that because i can treat <code>@Html.Raw(Html.Encode("IEnumerable<T>"))</code> or <code>@Html.Raw(Html.Encode("IReadOnlyRepository<Employee>"))</code> as an <code>@Html.Raw(Html.Encode("IEnumerable"))</code> or <code>@Html.Raw(Html.Encode("IReadOnlyRepository<Person>"))</code> and that allows me to share the logic in between <code>Employee</code> and <code>Person</code></em>
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Contravariance</div>
+    </div>
+    <div class="panel-body">
+        <em><strong>Contravariance</strong></em> is opposite of <em><strong>Covariance</strong></em>. Let's see a code where i want to add managers using an Employee Repository:
+        @Html.DisplayCode(@"
+private static void AddManagers(IRepository<Employee> employeeRepository)
+        {
+            employeeRepository.Add(new Manager { Name = ""Alex"" });
+            employeeRepository.Commit();
+        }
+", "c#")
+        <p>
+            This looks fine, but what if i want to convert my method to accept an <code>@Html.Raw(Html.Encode("IRepository<Manager>"))</code> using an Employee Repository.
+            @Html.DisplayCode(@"
+private static void AddManagers(IRepository<Manager> employeeRepository)
+        {
+            employeeRepository.Add(new Manager { Name = ""Alex"" });
+            employeeRepository.Commit();
+        }
+", "c#") This throws a compiler error because <code>@Html.Raw(Html.Encode("IRepository<T>"))</code> is invariant.
+</p>
+<p>
+    <img src="../../Content/Images/Generics/15.png" alt="" />
+</p>
+<p>
+    This is where contravariance comes into picture. It uses the <code>in</code> generic modifier.
+    @Html.DisplayCode(@"
+ public interface IRepository<in T> : IReadOnlyRepository<T> ,IDisposable
+{
+    void Add(T newEntity);
+    void Delete(T entity);
+    int Commit();
+}
+", "c#") But there is still a compiler error :
+</p>
+<p>
+    <img src="../../Content/Images/Generics/16.png" alt="" />
+</p>
+<p>
+    To fix this let's create another interface which is contravariant:
+    @Html.DisplayCode(@"
+public interface IWriteOnlyRepository<in T> : IDisposable
+{
+    void Add(T newEntity);
+    void Delete(T entity);
+    int Commit();
+}
+
+public interface IReadOnlyRepository<out T> : IDisposable
+{
+    T FindById(int id);
+    IQueryable<T> FindAll();
+}
+
+public interface IRepository<T> : IReadOnlyRepository<T> , IWriteOnlyRepository<T>
+{
+
+}
+", "c#")
+</p>
+<p>
+    And also fix the <code>AddManager</code> method:
+    @Html.DisplayCode(@"
+private static void AddManagers(IWriteOnlyRepository<Manager> employeeRepository)
+        {
+            employeeRepository.Add(new Manager { Name = ""Alex"" });
+            employeeRepository.Commit();
+        }
+", "c#")
+</p>
+<p>
+    <img src="../../Content/Images/Generics/17.png" alt="" />
+</p>
+<p>
+    <img src="../../Content/Images/Generics/18.png" alt="" />
+</p>
+<p>
+    Covariance : <code>Employee</code> casted to <code>Person</code>. This is possible because <code>Employee</code> will contain everything that a <code>Person</code> needs. Then you can read from this <code>Person</code>.
+</p>
+<p>
+    Contravariance : <code>Employee</code> will accept a <code>Manager</code> when writing to <code>Employee</code> because <code>Manager</code> contains everything that <code>Employee</code> needs.
+</p>
+</div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Another Example of Covariance, Contravariance</div>
+    </div>
+    <div class="panel-body">
+        <p>
+            Initial Code
+            @Html.DisplayCode(@"
+void Main()
+{
+	IRepository<Animal> animalRepository = new Repository<Animal>();
+	animalRepository.Add(new Animal{AnimalType=""Four Legged""});
+
+	IRepository<Animal> anotherAnimalRepository = animalRepository;
+
+	IEnumerable<Animal> animals = anotherAnimalRepository.FindAll();
+
+	foreach (var animal in animals)
+	{
+		Console.WriteLine (animal.AnimalType);
+	}
+}
+
+
+
+public interface IRepository<T>
+{
+	void Add(T creature);
+	IQueryable<T> FindAll();
+}
+
+public class Repository<T> : IRepository<T>
+{
+	private List<T> _beings;
+
+	public Repository()
+	{
+		_beings = new List<T>();
+	}
+
+	public void Add(T being)
+	{
+		_beings.Add(being);
+	}
+
+	public IQueryable<T> FindAll()
+	{
+		return _beings.AsQueryable();
+	}
+}
+
+
+public class Creature
+{
+	public String Type { get; set; }
+}
+
+public class Animal : Creature
+{
+	public String AnimalType {get; set;}
+}
+
+public class Dog : Animal
+{
+	public String Name {get; set;}
+}
+", "c#")
+        </p>
+        <p>
+            Covariance Code
+            @Html.DisplayCode(@"
+void Main()
+{
+	IRepository<Animal> animalRepository = new Repository<Animal>();
+	animalRepository.Add(new Animal{AnimalType=""Four Legged"", Type = ""Animal""});
+
+	//IRepository<Animal> anotherAnimalRepository = animalRepository;
+
+	IReadOnlyRepository<Creature> creatureRepository = animalRepository;
+
+	IEnumerable<Creature> creatures = creatureRepository.FindAll();
+
+	foreach (var creature in creatures)
+	{
+		Console.WriteLine (creature.Type);
+	}
+}
+
+public interface IReadOnlyRepository<out T>
+{
+	IQueryable<T> FindAll();
+}
+
+
+public interface IRepository<T> : IReadOnlyRepository<T>
+{
+	void Add(T creature);
+
+}
+
+public class Repository<T> : IRepository<T>
+{
+	private List<T> _beings;
+
+	public Repository()
+	{
+		_beings = new List<T>();
+	}
+
+	public void Add(T being)
+	{
+		_beings.Add(being);
+	}
+
+	public IQueryable<T> FindAll()
+	{
+		return _beings.AsQueryable();
+	}
+}
+
+
+public class Creature
+{
+	public String Type { get; set; }
+}
+
+public class Animal : Creature
+{
+	public String AnimalType {get; set;}
+}
+
+public class Dog : Animal
+{
+	public String Name {get; set;}
+}
+", "c#")
+        </p>
+        <p>
+            Contravariance Code
+            @Html.DisplayCode(@"
+void Main()
+{
+	IRepository<Animal> animalRepository = new Repository<Animal>();
+	animalRepository.Add(new Animal{AnimalType=""Four Legged"", Type = ""Animal""});
+
+	IWriteOnlyRepository<Dog> dogRepository = animalRepository;
+	dogRepository.Add(new Dog{Name = ""Bruno""});
+
+
+	IEnumerable<Creature> creatures = animalRepository.FindAll();
+
+	foreach (var creature in creatures)
+	{
+		Console.WriteLine (creature.Type);
+	}
+
+}
+
+
+public interface IWriteOnlyRepository<in T>
+{
+	void Add(T creature);
+}
+
+public interface IReadOnlyRepository<out T>
+{
+	IQueryable<T> FindAll();
+}
+
+
+public interface IRepository<T> : IReadOnlyRepository<T>, IWriteOnlyRepository<T>
+{
+
+
+}
+
+public class Repository<T> : IRepository<T>
+{
+	private List<T> _beings;
+
+	public Repository()
+	{
+		_beings = new List<T>();
+	}
+
+	public void Add(T being)
+	{
+		_beings.Add(being);
+	}
+
+	public IQueryable<T> FindAll()
+	{
+		return _beings.AsQueryable();
+	}
+}
+
+
+public class Creature
+{
+	public String Type { get; set; }
+}
+
+public class Animal : Creature
+{
+	public String AnimalType {get; set;}
+}
+
+public class Dog : Animal
+{
+	public String Name {get; set;}
+}
+", "c#")
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">More with Generics</div>
+    </div>
+    <div class="panel-body">
+        <p>
+            Enums:
+        </p>
+        <p><img src="../../Content/Images/Generics/19.png" alt="" /></p>
+        <p>But this throws a compiler error, <em><strong><code>System.Enum</code>s are not allowed as a constraint</strong></em></p>
+        <p>
+            Math Problem
+        </p>
+        <p>
+            <img src="../../Content/Images/Generics/20.png" alt="" />
+        </p>
+        <p>In case for the above code you need to need to implement it for <code>double</code> too, you might think this is something for which i can create a generic method. But there is no contstraint that says that the coming Type parameter must be able to do <code>+=</code> or <code>/</code> operations. So for this case Generic method is not possible for now.</p>
+        <p>
+            Generic Type inherits from Non Generic Type base class
+        </p>
+        <p>
+            <img src="../../Content/Images/Generics/21.png" alt="" />
+        </p>
+        <p>
+            Static field/property is no longer shared across for different type argument.
+        </p>
+        <p>
+            <img src="../../Content/Images/Generics/22.png" alt="" />
+        </p>
+        <p>
+            You need to pass the type parameter to get the number of instance with that type parameter. This prooves that a generic type with a specific type parameter is a different type as compared to that generic type with some other type parameter.
+        </p>
+        <p>
+            BUT, if you have the static field/property in a non generic base class, that is shared across different generic types with different type parameter.
+        </p>
+        <p>
+<img src="../../Content/Images/Generics/23.png" alt="" />
+        </p>
+        <p>
+<img src="../../Content/Images/Generics/3.png" alt="" />
         </p>
     </div>
 </div>
