@@ -1,0 +1,1021 @@
+﻿@{
+    ViewBag.Title = "Moq";
+}
+
+<h2>Moq</h2>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Overview</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>Introduction to the Moq framework</li>
+            <li>Introduction to Mocking</li>
+            <li>
+                Hand Rolled Mocks
+            </li>
+            <li>Mocking with Moq</li>
+            <li>Advanced Mocking with Moq</li>
+        </ul>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Introduction to the Moq framework</div>
+    </div>
+    <div class="panel-body">
+        <p>
+            Supported Frameworks
+            <ul>
+                <li>.NET 3.5 and higher</li>
+                <li>Silverlight</li>
+                <li>Project containing tests can not be "Client Profile"</li>
+            </ul>
+        </p>
+        <p>
+            Installation: <code>install-package Moq</code>
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Introduction to Mocking</div>
+    </div>
+    <div class="panel-body">
+        <p>
+            Overview
+            <ul>
+                <li>
+                    Unit testing can be difficult
+                    <ul>
+                        <li>Complex Code</li>
+                        <li>Code that is Coupled to other classes</li>
+                        <li>Code that accesses external resources</li>
+                    </ul>
+                </li>
+                <li>Good News... Test Doubles can help!</li>
+                <li>
+                    Test Doubles help you isolate the code you want to test
+                </li>
+                <li>Test doubles help support good coding principles</li>
+            </ul>
+        </p>
+        <p>
+            Properties of a good unit test
+            <ul>
+                <li>Atomic(one small piece of functionality)</li>
+                <li>Deterministic(should always either pass or fail)</li>
+                <li>Repeatable</li>
+                <li>Order Independent and isolated(your test should not need to be run in any specific order to pass)</li>
+                <li>Fast</li>
+                <li>Easy to setup</li>
+            </ul>
+        </p>
+        <p>
+            A common problem with unit tests: A method under test can have instances of several other methods and objects. And those methods and objects can have several other methods and classes.
+            <div>
+                <img src="../../Content/Images/testing/moq/1.png" alt="" />
+            </div>
+            This can be avoided when all the dependencies of the method under test has fake dependencies. This is where test doubles come into play
+            <div>
+                <img src="../../Content/Images/testing/moq/2.png" alt="" />
+            </div>
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Hand Rolled Mock Objects</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>
+                These are fake implementations of different abstraction that the method under test requires. For example: <code>CustomerService</code> class that implements the <code>ICustomerService</code> interface. To create a mock object you might create the <code>MockCustomerService</code> class dn implement <code>ICustomerService</code> interface.
+            </li>
+            <li>Once you've got the mock object created, you can now start to test that the code that needs to call that abstracted <code>ICustomerService</code> interface code is actually doing the calls. You can also work with it in different ways as far as providing back return values to control flow and exceptions so that you can test that exception handling is working correctly and things like that. To create those hand rolled mock objects you have to do all of the coding in hand. So you need to create the class by hand, you need to implement the interface that it needs by hand. And you need to implement the methods and properties  that are on that interface, so that theywill be able to work in your test in a way that you need them to</li>
+        </ul>
+        <p>
+            Creating hand rolled mocks
+            <ul>
+                <li>Basic Class</li>
+                <li>Implement the dependency interface</li>
+                <li>
+                    Flush out the dependency functionality needed, the methods and properties.
+                    <ul>
+                        <li>Return values</li>
+                        <li>Exception throwing</li>
+                        <li>"Was it called?"</li>
+                        <li>"How many times was it called?"</li>
+                    </ul>
+                </li>
+            </ul>
+        </p>
+        <p>
+            Sample code
+        </p>
+        <p>
+@Html.DisplayCode(@"
+
+namespace Logger
+{
+    public interface IFooterLogger
+    {
+        string LogFoot();
+    }
+}
+
+
+namespace Logger
+{
+    public interface IHeaderLogger
+    {
+        string LogHead();
+    }
+}
+
+namespace Logger
+{
+    public interface ILogger
+    {
+        void Log();
+    }
+}
+
+namespace Logger
+{
+    public interface IScrubbingLogger
+    {
+        void ScrubLog();
+    }
+}
+
+namespace Logger
+{
+    public class Logger
+    {
+
+        private IHeaderLogger _headerLogger;
+        private IFooterLogger _footerLogger;
+        private IScrubbingLogger _scrubbingLogger;
+        private ILogger _logger;
+
+        public Logger(IHeaderLogger headerLogger, IFooterLogger footerLogger, IScrubbingLogger scrubbingLogger, ILogger logger)
+        {
+            _headerLogger = headerLogger;
+            _footerLogger = footerLogger;
+            _scrubbingLogger = scrubbingLogger;
+            _logger = logger;
+        }
+
+        public void LogMessage(string message)
+        {
+            _headerLogger.LogHead();
+            _scrubbingLogger.ScrubLog();
+            _logger.Log();
+            _footerLogger.LogFoot();
+        }
+        
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            Test
+@Html.DisplayCode(@"
+using Logger;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Diagnostics;
+
+namespace LoggerTest
+{
+
+    public class MockScrubber : IScrubbingLogger
+    {
+        public void ScrubLog()
+        {
+            FromWasCalled = true;
+        }
+
+        public bool FromWasCalled { get; private set; }
+    }
+
+    public class MockHeaderLogger : IHeaderLogger
+    {
+        public string LogHead()
+        {
+            Debug.Print(""HeaderLogger"");
+            return String.Empty;
+        }
+    }
+
+    public class MockFooterLogger : IFooterLogger
+    {
+
+        public string LogFoot()
+        {
+            Debug.Print(""FooterLogger"");
+            return String.Empty;
+        }
+    }
+
+    public class MockLogger : ILogger
+    {
+        public void Log()
+        {
+            Debug.Print(""Logger"");
+        }
+    }
+
+
+
+    [TestClass]
+    public class LoggerClassTests
+    {
+        private MockScrubber _mockScrubber;
+        private MockHeaderLogger _mockHeaderLogger;
+        private MockFooterLogger _mockFooterLogger;
+        private MockLogger _mockLogger;
+        [TestInitialize]
+        public void Setup()
+        {
+            _mockScrubber = new MockScrubber();
+            _mockHeaderLogger = new MockHeaderLogger();
+            _mockFooterLogger = new MockFooterLogger();
+            _mockLogger = new MockLogger();
+            var logger = new Logger.Logger(_mockHeaderLogger, _mockFooterLogger, _mockScrubber, _mockLogger);
+            logger.LogMessage(""my message"");
+        }
+
+        [TestMethod]
+        public void sensitivedatashouldbescrubbedfromthelogmessage()
+        {
+            Assert.IsTrue(_mockScrubber.FromWasCalled);
+        }
+    }
+}
+
+", "c#")
+        </p>
+
+        <p>
+            The Good
+            <ul>
+                <li>Complete control over mock object functionality</li>
+                <li>No need to learn frameworks</li>
+                <li>As complexity grows, so do mock objects(can indicate that may be you have broken single responsibility principle for your code under test)</li>
+            </ul>
+        </p>
+        <p>
+            The Bad
+            <ul>
+                <li>Each mock object adds more code</li>
+                <li>
+                    As complexity grows, so do mock objects(sometimes complexity is required.)
+                    <ul>
+                        <li>More hand rolled mock objects</li>
+                        <li>or More complex mock objects</li>
+                    </ul>
+                </li>
+            </ul>
+        </p>
+        <p>
+            The Ugly
+            <ul>
+                <li>
+                    Brittleness when code under test changes
+                    <ul>
+                        <li>Interface changes</li>
+                        <li>Interaction logic changes</li>
+                    </ul>
+                </li>
+            </ul>
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Mocking with Moq</div>
+    </div>
+    <div class="panel-body">
+        <p>
+            Outline
+            <ul>
+                <li>AAA</li>
+                <li>Verification</li>
+                <li>Return Values</li>
+                <li>Parameters</li>
+                <li>Exceptions</li>
+                <li>Properties</li>
+                <li>Stubbing</li>
+                <li>Events</li>
+            </ul>
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">AAA</div>
+    </div>
+    <div class="panel-body">
+        <p>
+            Arrange, Act, Assert (see test/unittesting)
+        </p>
+        <p>
+            <ul>
+                <li>
+                    Arrange
+                    <ul>
+                        <li>Creating a mock object</li>
+                        <li>Pass the mock to the SUT(system under test) or CUT(code under test)</li>
+                    </ul>
+                </li>
+                <li>
+                    Act
+                    <ul>
+                        <li>Execute the SUT</li>
+                    </ul>
+                </li>
+                <li>
+                    Assert
+                    <ul>
+                        <li>Verify the SUT's interaction with the mock object</li>
+                    </ul>
+                </li>
+            </ul>
+        </p>
+
+        <p>
+@Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+
+namespace Customer
+{
+    public class CustomerService
+    {
+        private readonly ICustomerRepository _customerRepository;
+
+        public CustomerService(ICustomerRepository customerRepository)
+        {
+            _customerRepository = customerRepository;
+        }
+
+        public void Create(CustomerToCreateDto customerToCreateDto)
+        {
+            var customer = BuildCustomerObjectFrom(customerToCreateDto);
+            _customerRepository.Save(customer);
+        }
+
+        private Customer BuildCustomerObjectFrom(CustomerToCreateDto customerToCreateDto)
+        {
+            return new Customer(customerToCreateDto.Name, customerToCreateDto.City);
+        }
+    }
+
+    public interface ICustomerRepository
+    {
+        void Save(Customer customer);
+    }
+
+    public class CustomerToCreateDto
+    {
+        public String Name { get; set; }
+        public String City { get; set; }
+    }
+
+    public class Customer
+    {
+        public Customer(String name, String city)
+        {
+            Name = name;
+            City = city;
+        }
+
+        public String Name { get; set; }
+        public String City { get; set; }
+    }
+
+    public class CustomerRepository : ICustomerRepository
+    {
+        List<Customer> customers;
+        public CustomerRepository()
+        {
+            customers = new List<Customer>();
+        }
+        public void Save(Customer customer)
+        {
+            customers.Add(customer);
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            The Test
+@Html.DisplayCode(@"
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+
+namespace Customer.UnitTests
+{
+    [TestClass]
+    public class CustomerTests
+    {
+        [TestMethod]
+        public void the_repository_save_should_be_called()
+        {
+            //Arrange
+            var mockRepository = new Mock<ICustomerRepository>();
+
+            mockRepository.Setup(x => x.Save(It.IsAny<Customer>()));
+
+            var customerService = new CustomerService(mockRepository.Object);
+
+
+            //Act
+            customerService.Create(new CustomerToCreateDto());
+
+            //Assert
+            mockRepository.VerifyAll();
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            To verify the number of times <code>Save</code> is called.
+@Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+
+namespace Customer
+{
+    public class CustomerService
+    {
+        private readonly ICustomerRepository _customerRepository;
+
+        public CustomerService(ICustomerRepository customerRepository)
+        {
+            _customerRepository = customerRepository;
+        }
+
+        public void Create(IEnumerable<CustomerToCreateDto> customersToCreate)
+        {
+            foreach (var customerToCreateDto in customersToCreate)
+            {
+                _customerRepository.Save(new Customer(customerToCreateDto.Name, customerToCreateDto.City));
+            }
+        }
+
+        
+    }
+
+    public interface ICustomerRepository
+    {
+        void Save(Customer customer);
+    }
+
+    public class CustomerToCreateDto
+    {   
+        public String City { get; set; }
+        public String FirstName { get; set; }
+        public String LastName { get; set; }
+        public String Name { get { return FirstName + "" "" + LastName; } }
+    }
+
+    public class Customer
+    {
+        public Customer(String name, String city)
+        {
+            Name = name;
+            City = city;
+        }
+
+        public String Name { get; set; }
+        public String City { get; set; }
+    }
+
+    public class CustomerRepository : ICustomerRepository
+    {
+        List<Customer> customers;
+        public CustomerRepository()
+        {
+            customers = new List<Customer>();
+        }
+        public void Save(Customer customer)
+        {
+            customers.Add(customer);
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            The test
+@Html.DisplayCode(@"
+ [TestMethod]
+        public void the_customer_repository_should_be_called_once_per_customer()
+        {
+            //Arrange
+            var listOfCutomerDtos = new List<CustomerToCreateDto>
+            {
+                new CustomerToCreateDto{FirstName=""Sam"", LastName=""Sampson""},
+                new CustomerToCreateDto{FirstName=""Bob"", LastName=""Builder""},
+                new CustomerToCreateDto{FirstName=""Doug"", LastName=""Digger""},
+            };
+
+            var mockCustomerRepository = new Mock<ICustomerRepository>();
+
+            //This Setup only checks that the method Save is being called at least once.
+            //mockCustomerRepository.Setup(x => x.Save(It.IsAny<Customer>()));
+            
+            var customerService = new CustomerService(mockCustomerRepository.Object);
+
+
+            //Act
+            customerService.Create(listOfCutomerDtos);
+
+            //Assert
+            //mockCustomerRepository.Verify();
+            mockCustomerRepository.Verify(x => x.Save(It.IsAny<Customer>()), Times.Exactly(listOfCutomerDtos.Count));
+        }
+", "c#")
+        </p>
+        <p>
+            This is to check for return values. In first method we specify that <code>null</code> will be returned and in the second method we specify that <code>string</code> will be returned. And based on these return types, check if a particular method is called or not.
+@Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+
+namespace Customer
+{
+    public class CustomerService
+    {
+        private readonly ICustomerRepository _customerRepository;
+        private readonly ICustomerAddressBuilder _customerAddressBuilder;
+
+        public CustomerService(ICustomerRepository customerRepository, ICustomerAddressBuilder customerAddressBuilder)
+        {
+            _customerRepository = customerRepository;
+            _customerAddressBuilder = customerAddressBuilder;
+        }
+
+        public void Create(CustomerToCreateDto customerToCreateDto)
+        {
+            var customer = new Customer(customerToCreateDto.FirstName, customerToCreateDto.LastName);
+
+            customer.MailingAddress = _customerAddressBuilder.From(customerToCreateDto);
+
+            if (customer.MailingAddress == null)
+            {
+                throw new InvalidCustomerMailingAddressException();
+            }
+
+            _customerRepository.Save(customer);
+        }
+
+        
+    }
+
+    public class InvalidCustomerMailingAddressException : Exception
+    {
+        public InvalidCustomerMailingAddressException() : base(""Invalid Address"")
+        {
+        }
+    }
+
+
+    public interface ICustomerRepository
+    {
+        void Save(Customer customer);
+    }
+
+    public interface ICustomerAddressBuilder
+    {
+        String From(CustomerToCreateDto customerToCreateDto);
+    }
+
+
+    public class CustomerToCreateDto
+    {   
+        public String City { get; set; }
+        public String FirstName { get; set; }
+        public String LastName { get; set; }
+        public String Name { get { return FirstName + "" "" + LastName; } }
+    }
+
+    public class Customer
+    {
+        public Customer(String firstName, String lastName)
+        {
+            Name = firstName + "" "" + lastName;
+        }
+
+        public String Name { get; set; }
+        public String City { get; set; }
+        public String MailingAddress { get; set; }
+    }
+
+    public class CustomerRepository : ICustomerRepository
+    {
+        List<Customer> customers;
+        public CustomerRepository()
+        {
+            customers = new List<Customer>();
+        }
+        public void Save(Customer customer)
+        {
+            customers.Add(customer);
+        }
+    }
+
+    public class CustomerAddressBuilder : ICustomerAddressBuilder
+    {
+        public string From(CustomerToCreateDto customerToCreateDto)
+        {
+            return ""Address is "" + customerToCreateDto.City;
+        }
+    }
+
+}
+
+", "c#")
+        </p>
+        <p>
+            The test
+@Html.DisplayCode(@"
+[TestMethod]
+        [ExpectedException(typeof(InvalidCustomerMailingAddressException))]
+        public void an_exception_should_be_thrown_if_the_address_is_not_created()
+        {
+            //Arrange
+            var customerToCreateDto = new CustomerToCreateDto { FirstName = ""Bob"", LastName = ""builder"" };
+
+            var _mockCustomerRepository = new Mock<ICustomerRepository>();
+            var _mockCustomerAddressBuilder = new Mock<ICustomerAddressBuilder>();
+
+            _mockCustomerAddressBuilder.Setup(x => x.From(It.IsAny<CustomerToCreateDto>())).Returns(() => null);
+
+            var customerService = new CustomerService(_mockCustomerRepository.Object, _mockCustomerAddressBuilder.Object);
+
+            //Act
+            customerService.Create(customerToCreateDto);
+        }
+
+        [TestMethod]
+        public void the_customer_shouldbesavediftheaddress_was_created()
+        {
+            //Arrange
+            var customerToCreateDto = new CustomerToCreateDto { FirstName = ""Ashok"", LastName = ""Samrat"", City = ""Magadh"" };
+            var _mockCustomerRepository = new Mock<ICustomerRepository>();
+            var _mockCustomerAddressBuilder = new Mock<ICustomerAddressBuilder>();
+
+            _mockCustomerAddressBuilder.Setup(x => x.From(It.IsAny<CustomerToCreateDto>())).Returns(() => ""Address is Magadh"");
+
+            var customerService = new CustomerService(_mockCustomerRepository.Object, _mockCustomerAddressBuilder.Object);
+
+            //Act
+            customerService.Create(customerToCreateDto);
+
+
+            //Assert
+            _mockCustomerRepository.Verify(y => y.Save(It.IsAny<Customer>()));
+        }
+", "c#")
+        </p>
+        <p>
+            In case if the parameter is specified as <code>out</code>. just use out when you create a mock return.
+        </p>
+        <p>
+            Multiple return values
+@Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+
+namespace Customer
+{
+    public class CustomerService
+    {
+        private readonly ICustomerRepository _customerRepository;
+        private readonly IIdFactory _idFactory;
+
+        public CustomerService(ICustomerRepository customerRepository, IIdFactory idFactory)
+        {
+            _customerRepository = customerRepository;
+            _idFactory = idFactory;
+        }
+
+        public void Create(IEnumerable<CustomerToCreateDto> customersToCreateDto)
+        {
+            foreach (var customerToCreateDto in customersToCreateDto)
+            {
+                var customer = new Customer(customerToCreateDto.FirstName, customerToCreateDto.LastName);
+                customer.Id = _idFactory.Create();
+
+                _customerRepository.Save(customer);
+            }
+        }
+
+        
+    }
+
+    public class InvalidCustomerMailingAddressException : Exception
+    {
+        public InvalidCustomerMailingAddressException() : base(""Invalid Address"")
+        {
+        }
+    }
+
+
+    public interface ICustomerRepository
+    {
+        void Save(Customer customer);
+    }
+
+    public interface IIdFactory
+    {
+        int Create();
+    }
+
+
+    public class CustomerToCreateDto
+    {   
+        public String City { get; set; }
+        public String FirstName { get; set; }
+        public String LastName { get; set; }
+        public String Name { get { return FirstName + "" "" + LastName; } }
+    }
+
+    public class Customer
+    {
+        public Customer(String firstName, String lastName)
+        {
+            Name = firstName + "" "" + lastName;
+        }
+
+        public String Name { get; set; }
+        public String City { get; set; }
+        public String MailingAddress { get; set; }
+        public int Id { get; set; }
+    }
+
+    public class CustomerRepository : ICustomerRepository
+    {
+        List<Customer> customers;
+        public CustomerRepository()
+        {
+            customers = new List<Customer>();
+        }
+        public void Save(Customer customer)
+        {
+            customers.Add(customer);
+        }
+    }
+
+    public class IdFactory : IIdFactory
+    {
+        private int min=-1;
+        private IdFactory()
+        {
+            min = 1;
+        }
+        public int Create()
+        {
+            min++;
+            return min;
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            The Test
+@Html.DisplayCode(@"
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using System.Collections.Generic;
+
+namespace Customer.UnitTests
+{
+    [TestClass]
+    public class CustomerTests
+    {
+        [TestMethod]
+        public void each_customer_should_be_assigned_an_id()
+        {
+            //Arrange
+            var listOfCustomersToCreate = new List<CustomerToCreateDto>
+            {
+                new CustomerToCreateDto(),
+                new CustomerToCreateDto()
+            };
+
+
+            var _mockCustomerRepository = new Mock<ICustomerRepository>();
+            var _mockIdFactory = new Mock<IIdFactory>();
+
+            var i = 1;
+            _mockIdFactory.Setup(x => x.Create()).Returns(() => i).Callback(() => i++);
+
+
+            var customerService = new CustomerService(_mockCustomerRepository.Object, _mockIdFactory.Object);
+
+            //Act
+            customerService.Create(listOfCustomersToCreate); 
+
+            //Assert
+            _mockIdFactory.Verify(x => x.Create(), Times.Exactly(listOfCustomersToCreate.Count));
+            Assert.IsTrue(i == listOfCustomersToCreate.Count + 2);
+            
+        }
+
+
+    }
+
+
+}
+
+", "c#")
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Arguments</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>Verifying what value was passed</li>
+            <li>Different behaviors for different method parameters</li>
+            <li>Can be used to help control SUT execution flow</li>
+        </ul>
+        <p>
+@Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+
+namespace Customer
+{
+    public class CustomerService
+    {
+        private readonly ICustomerRepository _customerRepository;
+        private readonly ICustomerFullNameBuilder _customerFullName;
+
+        public CustomerService(ICustomerRepository customerRepository, ICustomerFullNameBuilder customerFullName)
+        {
+            _customerRepository = customerRepository;
+            _customerFullName = customerFullName;
+        }
+
+        public void Create(CustomerToCreateDto customerToCreateDto)
+        {
+            var fullName = _customerFullName.From(customerToCreateDto.FirstName, customerToCreateDto.LastName);
+
+            var customer = new Customer(fullName);
+
+            _customerRepository.Save(customer);
+        }
+
+        
+    }
+
+    public class InvalidCustomerMailingAddressException : Exception
+    {
+        public InvalidCustomerMailingAddressException() : base(""Invalid Address"")
+        {
+        }
+    }
+
+
+    public interface ICustomerRepository
+    {
+        void Save(Customer customer);
+    }
+
+    public interface ICustomerFullNameBuilder
+    {
+        String From(String firstName, String LastName);
+    }
+
+
+    public class CustomerToCreateDto
+    {   
+        public String City { get; set; }
+        public String FirstName { get; set; }
+        public String LastName { get; set; }
+        public String Name { get { return FirstName + "" "" + LastName; } }
+    }
+
+    public class Customer
+    {
+        private string fullName;
+
+        public Customer(String firstName, String lastName)
+        {
+            Name = firstName + "" "" + lastName;
+        }
+
+        public Customer(string fullName)
+        {
+            // TODO: Complete member initialization
+            this.fullName = fullName;
+        }
+
+        public String Name { get; set; }
+        public String City { get; set; }
+        public String MailingAddress { get; set; }
+        public int Id { get; set; }
+    }
+
+    public class CustomerRepository : ICustomerRepository
+    {
+        List<Customer> customers;
+        public CustomerRepository()
+        {
+            customers = new List<Customer>();
+        }
+        public void Save(Customer customer)
+        {
+            customers.Add(customer);
+        }
+    }
+
+    public class CustomerFullNameBuilder : ICustomerFullNameBuilder
+    {
+        public string From(string firstName, string LastName)
+        {
+            return firstName + "" "" + LastName;
+        }
+    }
+
+}
+
+", "c#")
+        </p>
+        <p>
+            The Test
+@Html.DisplayCode(@"
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using System.Collections.Generic;
+
+namespace Customer.UnitTests
+{
+    [TestClass]
+    public class CustomerTests
+    {
+       [TestMethod]
+        public void a_full_name_should_be_created_from_first_and_last_name()
+        {
+           //Arrange
+           var customerToCreateDto = new CustomerToCreateDto{FirstName=""bob"", LastName=""builder""};
+            var _mockRepository = new Mock<ICustomerRepository>();
+            var _mockCustomerFullNameBuilder = new Mock<ICustomerFullNameBuilder>();
+
+           _mockCustomerFullNameBuilder.Setup(x=>x.From(It.IsAny<string>(), It.IsAny<string>()));
+            var customerService = new CustomerService(_mockRepository.Object, _mockCustomerFullNameBuilder.Object);
+
+           //Act
+           customerService.Create(customerToCreateDto);
+
+           //Assert
+           _mockCustomerFullNameBuilder.Verify(x=>x.From(
+               It.Is<string>(
+                fn=>fn.Equals(customerToCreateDto.FirstName,System.StringComparison.InvariantCultureIgnoreCase)
+               ),
+               It.Is<string>(fn=>fn.Equals(customerToCreateDto.LastName,System.StringComparison.InvariantCultureIgnoreCase)
+               )
+               ));
+        }
+       
+
+
+    }
+
+
+}
+
+", "c#")
+        </p>
+    </div>
+</div>

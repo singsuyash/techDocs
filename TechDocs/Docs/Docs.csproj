@@ -301,6 +301,8 @@
     <Content Include="Content\Images\testing\7.png" />
     <Content Include="Content\Images\testing\8.png" />
     <Content Include="Content\Images\testing\9.png" />
+    <Content Include="Content\Images\testing\moq\1.png" />
+    <Content Include="Content\Images\testing\moq\2.png" />
     <Content Include="Content\Images\twitter.gif" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
@@ -348,6 +350,7 @@
     <Content Include="Views\CSharp\Delegates.cshtml" />
     <Content Include="Views\CSharp\Generics.cshtml" />
     <Content Include="Snippets\code.snippet" />
+    <Content Include="Views\Test\Moq.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
