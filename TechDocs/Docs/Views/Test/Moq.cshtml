@@ -1007,15 +1007,1028 @@ namespace Customer.UnitTests
                )
                ));
         }
-       
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            Testing control flow
+@Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+
+namespace Customer
+{
+    public class CustomerService
+    {
+        private readonly ICustomerRepository _customerRepository;
+        private readonly ICustomerStatusFactory _customerStatusFactory;
+
+        public CustomerService(ICustomerRepository customerRepository, ICustomerStatusFactory customerStatusFactory)
+        {
+            _customerRepository = customerRepository;
+            _customerStatusFactory = customerStatusFactory;
+        }
+
+        public void Create(CustomerToCreateDto customerToCreateDto)
+        {
+            var customer = new Customer(customerToCreateDto.FirstName, customerToCreateDto.LastName);
+            customer.StatusLevel = _customerStatusFactory.CreateFrom(customerToCreateDto);
+            if (customer.StatusLevel == ""Platinum"")
+            {
+                _customerRepository.SaveSpecial(customer);
+            }
+            else
+            {
+                _customerRepository.Save(customer);
+            }
+        }
+
+        
+    }
+
+    public class InvalidCustomerMailingAddressException : Exception
+    {
+        public InvalidCustomerMailingAddressException() : base(""Invalid Address"")
+        {
+        }
+    }
 
 
+    public interface ICustomerRepository
+    {
+        void Save(Customer customer);
+        void SaveSpecial(Customer customer);
+    }
+
+    public interface ICustomerStatusFactory
+    {
+        String CreateFrom(CustomerToCreateDto customerToCreateDto);
+    }
+
+
+    public class CustomerToCreateDto
+    {   
+        public String City { get; set; }
+        public String FirstName { get; set; }
+        public String LastName { get; set; }
+        public String Name { get { return FirstName + "" "" + LastName; } }
+        public String StatusLevel { get; set; }
+    }
+
+    public class Customer
+    {
+        private string fullName;
+
+        public Customer(String firstName, String lastName)
+        {
+            Name = firstName + "" "" + lastName;
+        }
+
+        public Customer(string fullName)
+        {
+            // TODO: Complete member initialization
+            this.fullName = fullName;
+        }
+
+        public String Name { get; set; }
+        public String City { get; set; }
+        public String MailingAddress { get; set; }
+        public int Id { get; set; }
+
+        public string StatusLevel { get; set; }
+    }
+
+    public class CustomerRepository : ICustomerRepository
+    {
+        List<Customer> customers;
+        public CustomerRepository()
+        {
+            customers = new List<Customer>();
+        }
+        public void Save(Customer customer)
+        {
+            customers.Add(customer);
+        }
+
+
+        public void SaveSpecial(Customer customer)
+        {
+            customers.Add(customer);
+        }
+    }
+
+    public class CustomerStatusFactory : ICustomerStatusFactory
+    {
+        public string CreateFrom(CustomerToCreateDto customerToCreateDto)
+        {
+            return customerToCreateDto.StatusLevel;
+        }
     }
 
 
 }
 
 ", "c#")
+        </p>
+        <p>
+@Html.DisplayCode(@"
+[TestMethod]
+        public void argument_and_execution_flow()
+        {
+           //Arrange
+            
+           var customerToCreate = new CustomerToCreateDto
+            {
+                //StatusLevel = ""Platinum"",
+                StatusLevel = ""Gold"",
+                FirstName = ""Bob"",
+                LastName = ""Builder""
+            };
+           var _mockCustomerRepository = new Mock<ICustomerRepository>();
+            var _mockCustomerStatusFactory = new Mock<ICustomerStatusFactory>();
+
+            _mockCustomerStatusFactory.Setup(x => x.CreateFrom(It.Is<CustomerToCreateDto>(y=>y.StatusLevel==""Platinum""))).Returns(""Platinum"");
+
+            
+            var customerService = new CustomerService(_mockCustomerRepository.Object, _mockCustomerStatusFactory.Object);
+
+           //Act
+            customerService.Create(customerToCreate);
+
+           //Assert
+            //_mockCustomerRepository.Verify(x => x.SaveSpecial(It.IsAny<Customer>()));
+            _mockCustomerRepository.Verify(x => x.Save(It.IsAny<Customer>()));
+        }
+", "c#")
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Exceptions</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>Mock object throws when invoked</li>
+            <li>Verifying SUT exception handling</li>
+        </ul>
+        <p>
+@Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+
+namespace Customer
+{
+    public class CustomerService
+    {
+        private readonly ICustomerRepository _customerRepository;
+        private readonly ICustomerAddressFactory _customerAddressFactory;
+
+        public CustomerService(ICustomerRepository customerRepository, ICustomerAddressFactory customerAddressFactory)
+        {
+            _customerRepository = customerRepository;
+            _customerAddressFactory = customerAddressFactory;
+        }
+
+        public void Create(CustomerToCreateDto customerToCreateDto)
+        {
+            try
+            {
+                var customer = new Customer(customerToCreateDto.Name);
+                customer.MailingAddress = _customerAddressFactory.From(customerToCreateDto);
+                _customerRepository.Save(customer);
+            }
+            catch (InvalidCustomerAddressException e)
+            {
+
+                throw new CustomerCreationException(e);
+            }
+        }
+    }
+
+    public class InvalidCustomerAddressException : Exception
+    {
+        public InvalidCustomerAddressException()
+            : base(""Invalid Address"")
+        {
+        }
+    }
+
+    public class CustomerCreationException : Exception
+    {
+        private InvalidCustomerAddressException e;
+
+        public CustomerCreationException()
+            : base(""Invalid Customer"")
+        {
+
+        }
+
+        public CustomerCreationException(InvalidCustomerAddressException e)
+        {
+            // TODO: Complete member initialization
+            this.e = e;
+        }
+    }
+
+
+    public interface ICustomerRepository
+    {
+        void Save(Customer customer);
+        void SaveSpecial(Customer customer);
+    }
+
+    public interface ICustomerAddressFactory
+    {
+        string From(CustomerToCreateDto customerToCreateDto);
+    }
+
+
+    public class CustomerToCreateDto
+    {
+        public String City { get; set; }
+        public String FirstName { get; set; }
+        public String LastName { get; set; }
+        public String Name { get { return FirstName + "" "" + LastName; } }
+        public String StatusLevel { get; set; }
+    }
+
+    public class Customer
+    {
+        private string fullName;
+
+        public Customer(String firstName, String lastName)
+        {
+            Name = firstName + "" "" + lastName;
+        }
+
+        public Customer(string fullName)
+        {
+            // TODO: Complete member initialization
+            this.fullName = fullName;
+        }
+
+        public String Name { get; set; }
+        public String City { get; set; }
+        public String MailingAddress { get; set; }
+        public int Id { get; set; }
+
+        public string StatusLevel { get; set; }
+    }
+
+    public class CustomerRepository : ICustomerRepository
+    {
+        List<Customer> customers;
+        public CustomerRepository()
+        {
+            customers = new List<Customer>();
+        }
+        public void Save(Customer customer)
+        {
+            customers.Add(customer);
+        }
+
+
+        public void SaveSpecial(Customer customer)
+        {
+            customers.Add(customer);
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            The test
+@Html.DisplayCode(@"
+[TestMethod]
+[ExpectedException(typeof(CustomerCreationException))]
+public void when_creating_a_customer_which_has_an_invalid_address()
+{
+    //Arrange
+    var _mockRepository = new Mock<ICustomerRepository>();
+    var _mockCustomerAddressFactory = new Mock<ICustomerAddressFactory>();
+
+    _mockCustomerAddressFactory
+        .Setup(x => x.From(It.IsAny<CustomerToCreateDto>()))
+        .Throws<InvalidCustomerAddressException>();
+
+
+    var customerService = new CustomerService(_mockRepository.Object, _mockCustomerAddressFactory.Object);
+
+    //Act
+    customerService.Create(new CustomerToCreateDto());
+           
+    //Assert
+}
+", "c#")
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Properties</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>Verify "setter" calls</li>
+            <li>Return values from "getter" calls</li>
+            <li>Auto-mocking hierarchies(recursive mocks)</li>
+        </ul>
+        <p>
+            Setter
+@Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+
+namespace Customer
+{
+    public class CustomerService
+    {
+        private readonly ICustomerRepository _customerRepository;
+
+        public CustomerService(ICustomerRepository customerRepository)
+        {
+            _customerRepository = customerRepository;
+        }
+
+        public void Create(CustomerToCreateDto customerToCreateDto)
+        {
+            var customer = new Customer(customerToCreateDto.FirstName, customerToCreateDto.LastName);
+
+            _customerRepository.LocalTimeZone = TimeZone.CurrentTimeZone.StandardName;
+
+            _customerRepository.Save(customer);
+        }
+    }
+
+    public class InvalidCustomerAddressException : Exception
+    {
+        public InvalidCustomerAddressException()
+            : base(""Invalid Address"")
+        {
+        }
+    }
+
+    public class CustomerCreationException : Exception
+    {
+        private InvalidCustomerAddressException e;
+
+        public CustomerCreationException()
+            : base(""Invalid Customer"")
+        {
+
+        }
+
+        public CustomerCreationException(InvalidCustomerAddressException e)
+        {
+            // TODO: Complete member initialization
+            this.e = e;
+        }
+    }
+
+
+    public interface ICustomerRepository
+    {
+        void Save(Customer customer);
+        void SaveSpecial(Customer customer);
+
+        string LocalTimeZone { get; set; }
+    }
+
+    public interface ICustomerAddressFactory
+    {
+        string From(CustomerToCreateDto customerToCreateDto);
+    }
+
+
+    public class CustomerToCreateDto
+    {
+        public String City { get; set; }
+        public String FirstName { get; set; }
+        public String LastName { get; set; }
+        public String Name { get { return FirstName + "" "" + LastName; } }
+        public String StatusLevel { get; set; }
+    }
+
+    public class Customer
+    {
+        private string fullName;
+
+        public Customer(String firstName, String lastName)
+        {
+            Name = firstName + "" "" + lastName;
+        }
+
+        public Customer(string fullName)
+        {
+            // TODO: Complete member initialization
+            this.fullName = fullName;
+        }
+
+        public String Name { get; set; }
+        public String City { get; set; }
+        public String MailingAddress { get; set; }
+        public int Id { get; set; }
+
+        public string StatusLevel { get; set; }
+    }
+
+    public class CustomerRepository : ICustomerRepository
+    {
+        List<Customer> customers;
+        public CustomerRepository()
+        {
+            customers = new List<Customer>();
+        }
+        public void Save(Customer customer)
+        {
+            customers.Add(customer);
+        }
+
+
+        public void SaveSpecial(Customer customer)
+        {
+            customers.Add(customer);
+        }
+
+
+        public string LocalTimeZone
+        {
+            get;
+            set;
+        }
+    }
+
+
+
+
+}
+
+", "c#")
+        </p>
+        <p>
+            The Test
+@Html.DisplayCode(@"
+[TestMethod]
+public void the_local_timezone_should_be_set()
+{
+    //Arrange
+    var mockCustomerRepository = new Mock<ICustomerRepository>();
+
+    var customerService = new CustomerService(mockCustomerRepository.Object);
+
+    //Act
+    customerService.Create(new CustomerToCreateDto());
+
+    //Assert
+    mockCustomerRepository.VerifySet(x => x.LocalTimeZone = It.IsAny<string>());
+}
+", "c#")
+        </p>
+        <p>
+            Getter
+@Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+
+namespace Customer
+{
+    public class CustomerService
+    {
+        private readonly ICustomerRepository _customerRepository;
+        private readonly IApplicationSettings _applicationSettings;
+
+        public CustomerService(ICustomerRepository customerRepository, IApplicationSettings applicationSettings)
+        {
+            _customerRepository = customerRepository;
+            _applicationSettings = applicationSettings;
+        }
+
+        public void Create(CustomerToCreateDto customerToCreateDto)
+        {
+            var customer = new Customer(customerToCreateDto.Name);
+            var workstationId = _applicationSettings.WorkstationId;
+
+            if (!workstationId.HasValue)
+            {
+                throw new InvalidWorkstationIdException();
+            }
+
+            customer.WorkStationCreatedOn = workstationId.Value;
+            _customerRepository.Save(customer);
+        }
+    }
+
+    public class InvalidWorkstationIdException : Exception
+    {
+        public InvalidWorkstationIdException():base(""Invalid workstationid"")
+        {
+
+        }
+    }
+
+    
+
+
+    public interface ICustomerRepository
+    {
+        void Save(Customer customer);
+        void SaveSpecial(Customer customer);
+
+        string LocalTimeZone { get; set; }
+    }
+
+    public interface IApplicationSettings
+    {
+        int? WorkstationId { get; set; }
+    }
+
+
+    public class CustomerToCreateDto
+    {
+        public String City { get; set; }
+        public String FirstName { get; set; }
+        public String LastName { get; set; }
+        public String Name { get { return FirstName + "" "" + LastName; } }
+        public String StatusLevel { get; set; }
+    }
+
+    public class Customer
+    {
+        private string fullName;
+
+        public Customer(String firstName, String lastName)
+        {
+            Name = firstName + "" "" + lastName;
+        }
+
+        public Customer(string fullName)
+        {
+            // TODO: Complete member initialization
+            this.fullName = fullName;
+        }
+
+        public String Name { get; set; }
+        public String City { get; set; }
+        public String MailingAddress { get; set; }
+        public int Id { get; set; }
+
+        public string StatusLevel { get; set; }
+
+        public int WorkStationCreatedOn { get; set; }
+    }
+
+    public class CustomerRepository : ICustomerRepository
+    {
+        List<Customer> customers;
+        public CustomerRepository()
+        {
+            customers = new List<Customer>();
+        }
+        public void Save(Customer customer)
+        {
+            customers.Add(customer);
+        }
+
+
+        public void SaveSpecial(Customer customer)
+        {
+            customers.Add(customer);
+        }
+
+
+        public string LocalTimeZone
+        {
+            get;
+            set;
+        }
+    }
+
+
+
+
+}
+
+", "c#")
+        </p>
+        <p>
+            The test
+@Html.DisplayCode(@"
+[TestMethod]
+        public void the_workstation_id_should_be_used()
+        {
+           //Arrange
+            var mockCustomerRepository = new Mock<ICustomerRepository>();
+            var mockApplicationSettings = new Mock<IApplicationSettings>();
+
+            mockApplicationSettings
+                .Setup(x => x.WorkstationId)
+                .Returns(123);
+
+
+            var customerService = new CustomerService(mockCustomerRepository.Object, mockApplicationSettings.Object);
+
+           //Act
+            customerService.Create(new CustomerToCreateDto());
+
+           //Assert
+            mockApplicationSettings.VerifyGet(x => x.WorkstationId);
+        }
+", "c#")
+        </p>
+        <p>
+            Property Hierarchy
+            <div>
+<img src="../../Content/Images/testing/moq/3.png" alt="" />
+            </div>
+        </p>
+        <p>
+            Stubbing Properties
+            <ul>
+                <li>Pre-set values for properties on mock objects</li>
+                <li>Changing those values</li>
+                <li>SetupAllProperties</li>
+            </ul>
+            <div>
+<img src="../../Content/Images/testing/moq/4.png" alt="" />
+            </div>
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Events</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>Raise on the mock</li>
+            <li>Raise further down the hierarchy</li>
+            <li>Non-standard event signatures</li>
+        </ul>
+        <p>
+            <div>
+<img src="../../Content/Images/testing/moq/5.png" alt="" />
+            </div>
+            <div>
+<img src="../../Content/Images/testing/moq/6.png" alt="" />
+            </div>
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Advanced Mocking</div>
+    </div>
+    <div class="panel-body">
+        <p>
+            Outline
+            <ul>
+                <li>Strict and Loose Mocking</li>
+                <li>Base Class Implementations</li>
+                <li>Recursive Mocking</li>
+                <li>Centralized Mock Creation</li>
+                <li>Protected Members</li>
+            </ul>
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Strict vs Loose Mocking</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>
+                Strict
+                <ul>
+                    <li>raises exception for anything on a mock object that doesn't have an explicitly declared expectation</li>
+                </ul>
+            </li>
+            <li>
+                Loose
+                <ul>
+                    <li>no exception raised</li>
+                    <li>returns default values when no expectation is explicitly declared</li>
+                </ul>
+            </li>
+            <li>Loose is the Moq default behavior</li>
+        </ul>
+        <p>
+            @Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+
+namespace Customer
+{
+    public class CustomerService
+    {
+        private readonly ICustomerRepository _customerRepository;
+        public CustomerService(ICustomerRepository customerRepository)
+        {
+            _customerRepository = customerRepository;
+        }
+
+        public void Create(CustomerToCreateDto customerToCreate)
+        {
+            var customer = new Customer(customerToCreate.Name);
+
+            _customerRepository.Save(customer);
+            _customerRepository.FetchAll();
+        }
+    }
+
+    public interface ICustomerRepository
+    {
+        void FetchAll();
+
+        void Save(Customer customer);
+    }
+
+    public class CustomerToCreateDto
+    {
+        public object Name { get; set; }
+    }
+
+    public class Customer
+    {
+        private object p;
+
+        public Customer(object p)
+        {
+            // TODO: Complete member initialization
+            this.p = p;
+        }
+
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            The Test
+@Html.DisplayCode(@"
+[TestMethod]
+public void the_customer_should_be_saved()
+{
+    //Arrange
+    //Loose Mock
+    //var mockCustomerRepository = 
+        //new Mock<ICustomerRepository>();
+
+    //Strict Mock
+    var mockCustomerRepository = 
+        new Mock<ICustomerRepository>(MockBehavior.Strict);
+
+            
+    mockCustomerRepository
+        .Setup(x => x.Save(It.IsAny<Customer>()));
+
+    var customerService = new CustomerService(mockCustomerRepository.Object);
+
+    //Act
+    customerService.Create(new CustomerToCreateDto());
+
+    //Assert
+    mockCustomerRepository.Verify();
+            
+}
+", "c#")
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Base Class Implementations</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>aka "Partial Mocks"</li>
+            <li>Allows for invocation of base class implementation if no expectation has been set on the member</li>
+            <li>Necessary for mocking Web/Html controls in System.Web</li>
+        </ul>
+        <p>
+@Html.DisplayCode(@"
+using System;
+
+namespace Customer
+{
+    public class CustomerNameFormatter: BaseFormatter
+    {
+        public string From(Customer customer)
+        {
+            var firstName = ParseBadWordsFrom(customer.FirstName);
+            var lastName = ParseBadWordsFrom(customer.LastName);
+
+            return String.Format(""{0}, {1}"", lastName, firstName);
+        }
+    }
+
+    public abstract class BaseFormatter
+    {
+        public virtual string ParseBadWordsFrom(string value)
+        {
+            return value.Replace(""SAP"", string.Empty);
+        }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            The Test
+@Html.DisplayCode(@"
+[TestMethod]
+        public void bad_words_should_be_stripped_from_the_first_and_last_names()
+        {
+            //Arrange
+            var mockNameFormatter = new Mock<CustomerNameFormatter>();
+
+            //Act
+            mockNameFormatter.Object.From(new Customer(""Bob"", ""SAPBuilder""));
+
+            //Assert
+            mockNameFormatter.Verify(
+                x=>x.ParseBadWordsFrom(It.IsAny<string>()), Times.AtLeast(2)
+                );
+        }
+", "c#")
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Recursive Mocking</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>
+                A mock object that returns a new mock object for every member
+                <ul>
+                    <li>If the member is mockable (i.e. not a value type)</li>
+                    <li>If there is no expectation set on the member</li>
+                </ul>
+            </li>
+            <li>
+                The same mock object is returned on all calls
+            </li>
+        </ul>
+        <p>
+            <div>
+<img src="../../Content/Images/testing/moq/7.png" alt="" />
+            </div>
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Centralizing Mock Creation</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>MockRepository</li>
+            <li>Configure all mock objects centrally</li>
+            <li>Verify all mock objects in one call</li>
+        </ul>
+        <p>
+@Html.DisplayCode(@"
+using System;
+using System.Collections.Generic;
+
+namespace Customer
+{
+    public class CustomerService
+    {
+        private readonly ICustomerRepository _customerRepository;
+        private readonly ICustomerAddressFormatter _customerAddressFormatter;
+        public CustomerService(ICustomerRepository customerRepository, ICustomerAddressFormatter customerAddressFormatter)
+        {
+            _customerRepository = customerRepository;
+            _customerAddressFormatter = customerAddressFormatter;
+        }
+
+        public void Create(CustomerToCreateDto customerToCreate)
+        {
+            var customer = new Customer(customerToCreate.Name);
+            customer.Address = _customerAddressFormatter.For(customerToCreate);
+
+            _customerRepository.FetchAll();
+        }
+    }
+
+    public interface ICustomerRepository
+    {
+        void FetchAll();
+
+        void Save(Customer customer);
+    }
+
+    public interface ICustomerAddressFormatter
+    {
+        string For(CustomerToCreateDto customerToCreate);
+    }
+
+    public class CustomerToCreateDto
+    {
+        public object Name { get; set; }
+    }
+
+    public class Customer
+    {
+        private object p;
+        private string p1;
+        private string p2;
+
+        public Customer(object p)
+        {
+            // TODO: Complete member initialization
+            this.p = p;
+        }
+
+        public Customer(string p1, string p2)
+        {
+            // TODO: Complete member initialization
+            this.p1 = p1;
+            this.p2 = p2;
+        }
+
+
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
+
+        public string Address { get; set; }
+    }
+}
+
+", "c#")
+        </p>
+        <p>
+            The test
+@Html.DisplayCode(@"
+[TestMethod]
+public void the_address_should_be_formatted()
+{
+//Arrange
+var mockFactory = new MockRepository(MockBehavior.Loose) { DefaultValue = DefaultValue.Mock };
+
+var mockCustomerRepository = mockFactory.Create<ICustomerRepository>();
+var mockCustomerAddressFormatter = mockFactory.Create<ICustomerAddressFormatter>();
+
+mockCustomerAddressFormatter
+    .Setup(x => x.For(It.IsAny<CustomerToCreateDto>()))
+    .Returns(""new address"");
+
+var customerService = new CustomerService(
+    mockCustomerRepository.Object, mockCustomerAddressFormatter.Object
+    );
+
+//Act
+customerService.Create(new CustomerToCreateDto());
+
+//Assert
+mockFactory.Verify();
+}
+", "c#")
+        </p>
+
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Protected Members</div>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>Mocking members that use the "protected" keyword</li>
+            <li>No intellisense</li>
+            <li>Must use "ItExpr" instead of "It"</li>
+        </ul>
+        <p>
+<img src="../../Content/Images/testing/moq/8.png" alt="" />
+        </p>
+        <p>
+<img src="../../Content/Images/testing/moq/9.png" alt="" />
         </p>
     </div>
 </div>

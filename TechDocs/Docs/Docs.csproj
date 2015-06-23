@@ -303,6 +303,13 @@
     <Content Include="Content\Images\testing\9.png" />
     <Content Include="Content\Images\testing\moq\1.png" />
     <Content Include="Content\Images\testing\moq\2.png" />
+    <Content Include="Content\Images\testing\moq\3.png" />
+    <Content Include="Content\Images\testing\moq\4.png" />
+    <Content Include="Content\Images\testing\moq\5.png" />
+    <Content Include="Content\Images\testing\moq\6.png" />
+    <Content Include="Content\Images\testing\moq\7.png" />
+    <Content Include="Content\Images\testing\moq\8.png" />
+    <Content Include="Content\Images\testing\moq\9.png" />
     <Content Include="Content\Images\twitter.gif" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
