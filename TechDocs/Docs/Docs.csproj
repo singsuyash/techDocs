@@ -358,6 +358,7 @@
     <Content Include="Views\CSharp\Generics.cshtml" />
     <Content Include="Snippets\code.snippet" />
     <Content Include="Views\Test\Moq.cshtml" />
+    <Content Include="Views\OOPS\Solid.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -1,0 +1,374 @@
+﻿
+@{
+	ViewBag.Title = "Solid";
+}
+
+<h2>SOLID Principles of Object Oriented Design</h2>
+
+
+<div class="panel panel-info">
+	<div class="panel-heading">
+		<div class="panel-title">SRP: The Single Respnsibility Principle</div>
+	</div>
+	<div class="panel-body">
+		<ul>
+			<li><strong><em>The Single Responsibility Principle states that every object should have a single responsibility, and that responsibility should be entirely encapsulated by the class</em></strong></li>
+			<li>
+				<strong><em>There should never be more than one reason for a class to change</em></strong>
+			</li>
+			<li><strong>Cohesion</strong>: how strongly-related and focused are the various responsibilities of a module</li>
+			<li>
+				<strong>Coupling</strong>: the degree to which each program module relies on each one of the other modules
+			</li>
+			<li>
+				We strive for low coupling but high cohesion
+			</li>
+			<li>
+				You'll find that if you follow this principle, a lot of the times you'll have very few if statements, or switch statements, or branching logic in your code. Because you've isolated the things that would act differently into separate classes, that know how to behave in their specific environment and there context.
+			</li>
+			<li>
+				Related principles
+				<ul>
+					<li>Open/Close Principle</li>
+					<li>Interface Segregation Principle</li>
+					<li>Separation of Concerns</li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+</div>
+
+<div class="panel panel-info">
+	<div class="panel-heading">
+		<div class="panel-title">Open Closed Principles</div>
+	</div>
+	<div class="panel-body">
+		<p>
+		   <strong><em>The Open/Close Principle states that the software entities(classes, modules, functions, etc.) should be open for extension, but closed for modification</em></strong>
+		</p>
+		<p>
+			<ul>
+				<li>Open To Extension: New behaviour can be added in future</li>
+				<li>Closed to Modification: Changes to source or binary code are not required </li>
+			</ul>
+		</p>
+		<p>
+			The Problem
+			<ul>
+				<li>Adding new rules require changes to the function every time</li>
+				<li>Each change can introduce bugs and requires re-testing, etc.</li>
+				<li>We want to avoid introducing changes that cascade through many modules in our application</li>
+				<li>
+					Writing new classes is less likely to introduce problems
+					<ul>
+						<li>
+							Nothing depends on new classes(yet)
+						</li>
+						<li>New classes have no legacy coupling to make them hard to design or test</li>
+					</ul>
+				</li>
+			</ul>
+		</p>
+		<p>
+			Three Approaches to achieve OCP
+			<ul>
+				<li>
+					Parameters (Procedural Programming)
+					<ul>
+						<li>Allow client to control behavior specifics via a parameter</li>
+						<li>Combined with delegates/lambda, can be very powerful approach</li>
+					</ul>
+				</li>
+				<li>
+					Inheritance / Template Method Pattern
+					<ul>
+						<li>Child types override behavior of a base classes (or interface)</li>
+					</ul>
+				</li>
+				<li>
+					Composition / Strategy Pattern
+					<ul>
+						<li>Client code depends on abstraction</li>
+						<li>Provides a "plug in" model</li>
+						<li>Implementations utilize Inheritance; Client utilizes Composition</li>
+					</ul>
+				</li>
+			</ul>
+		</p>
+		<p>
+			When do we apply OCP?
+			<ul>
+				<li>
+					Experience Tells You : If you know from your own experience in the problem domain that a particular class of change is likely to recur, you can apply ocp up front in your design
+				</li>
+				<li>
+					Otherwise - "Fool me once, shame on you; fool me twice, shame on me"
+					<ul>
+						<li>Don't apply OCP at first</li>
+						<li>If the module changes once, accept it. do the minimum thing that can fix it</li>
+						<li>If it changes a second time, refactor to achieve OCP</li>
+					</ul>
+				</li>
+				<li>
+					Remember TANSTAAFL
+					<ul>
+						<li>There Ain't No Such Thing AS A Free Lunch</li>
+						<li>OCP adds complexity to design</li>
+						<li>No design can be closed against all changes</li>
+					</ul>
+				</li>
+			</ul>
+		</p>
+		<p>
+			<ul>
+				<li>
+					OCP practice yields
+					<ul>
+						<li>flexibility</li>
+						<li>reusability</li>
+						<li>maintainability</li>
+					</ul>
+				</li>
+				<li>
+					Know when to abstract out interfaces, resis for premature abstraction
+				</li>
+				<li>
+					Related Fundamentals
+					<ul>
+						<li>Single Responsibility Principle</li>
+						<li>Strategy Pattern</li>
+						<li>Template Method Pattern</li>
+					</ul>
+				</li>
+			</ul>
+		</p>
+	</div>
+</div>
+
+
+<div class="panel panel-info">
+	<div class="panel-heading">
+		<div class="panel-title">Liskov Substitution Principle</div>
+	</div>
+	<div class="panel-body">
+		<p>
+			<em><strong>The Liskov Substitution Principle states that Subtypes must be substitutable for their base types</strong></em>
+		</p>
+		<p>
+			Substitutability
+			<ul>
+				<li>
+					Child classes must not:
+					<ul>
+						<li>Remove base class behavior</li>
+						<li>Violate base class invariants</li>
+					</ul>
+				</li>
+				<li>
+					And in general must not require calling code to know they are different from their base type
+				</li>
+			</ul>
+		</p>
+		<p>
+			Inheritance and the IS-A Relationship
+			<ul>
+				<li>Naive OOP teaches use of IS-A to descrive child classes' relationship to base classes</li>
+				<li>LSP suggests that IS-A should be replaced with IS-SUBSTITUTABLE-FOR</li>
+			</ul>
+		</p>
+		<p>
+			Invariants
+			<ul>
+				<li>Consist of reasonable assumptions of behavior by clients</li>
+				<li>Can be expressed as preconditions and postconditions for methods</li>
+				<li>Frequently, unit tests are used to specify expected behavior of a method or class</li>
+				<li>Design By Contract is a technique that makes defining these pre- and post- conditions explicit within code itself</li>
+				<li>To follow LSP, derived classes must not violate any constraints defined(or assumed by clients) on the base classes</li>
+			</ul>
+		</p>
+
+		<p>
+			The Problem
+			<ul>
+				<li>Non-substitutable code breaks polymorphism</li>
+				<li>Client code expects child classes to work in place of their base classes</li>
+				<li>"Fixing" substitutability problems by adding if-then or swith statements quickly becomes a maintenance nightmare (and violates OCP)</li>
+			</ul>
+		</p>
+		<p>
+			LSP Violation "Smells"
+			@Html.DisplayCode(@"
+foreach(var emp in Employees)
+{
+	if(emp is Manager)
+	{
+		_printer.PrintManager(emp as Manager);
+	}
+	else
+	{
+		_printer.PrintEmployee(emp);
+	}
+}
+
+public abstract class Base
+{
+	public abstract void Method1();
+	public abstract void Method2();
+}
+
+public class Child : Base
+{
+	public override void Method1()
+	{	
+		throw new NotImplementedException();
+	}
+	public override void Method2()
+	{
+		// do stuff
+	}
+}
+", "c#")
+		</p>
+        <p>
+            LSP Tips
+            <ul>
+                <li>
+                    "Tell, Don't Ask"
+                    <ul>
+                        <li>Don't interrogate objects for their internals - move behavior to the object. Have high cohesion. Behavior should be inside object and they should use those internal states.</li>
+                        <li>Tell the object what you want it to do</li>
+                    </ul>
+                </li>
+                <li>
+                    Consider Refactoring to a new Base Class
+                    <ul>
+                        <li>Given two classes that share a lot of behavior but are not substitutable...</li>
+                        <li>Create a third class that both can derive from</li>
+                        <li>Ensure substitutability is retained between each class and the new base</li>
+                    </ul>
+                </li>
+            </ul>
+        </p>
+        <p>
+            <ul>
+                <li>Conformance to LSP allows for proper use of polymorphism and produces more maintainable code</li>
+                <li>Remember IS-SUBSTITUTABLE-FOR instead of IS-A</li>
+                <li>
+                    Related Fundamentals:
+                    <ul>
+                        <li>Polymorphism</li>
+                        <li>Inheritance</li>
+                        <li>Interface Segregation Principle</li>
+                        <li>Open/Closed Principle</li>
+                    </ul>
+                </li>
+            </ul>
+        </p>
+	</div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Interface Segregation Principle</div>
+    </div>
+    <div class="panel-body">
+        <p>
+            <strong><em>The Interface Segregation Principle states that clients should not be forced to depend on methods they do not use.</em></strong>
+        </p>
+        <p>
+            ISP Smells
+            <ul>
+                <li>
+@Html.DisplayCode(@"
+public override string ResetPassword(string username, string answer)
+{
+    throw new NotImplementedException();
+}
+", "c#")
+                </li>
+                <li>These violate LSP</li>
+                <li>Client references a class but uses small portion of it</li>
+            </ul>
+        </p>
+        <p>
+            When do we fix ISP
+            <ul>
+                <li>
+                    Once there is pain
+                    <ul>
+                        <li>If there is no pain, there's no problem to address</li>
+                    </ul>
+                </li>
+                <li>
+                    If you find yourself depending on a fat interface that you own
+                    <ul>
+                        <li>Create a smaller interface with just what you need</li>
+                        <li>Have the fat interface implement your smaller interface</li>
+                        <li>Reference the smaller interface in your code</li>
+                    </ul>
+                </li>
+                <li>
+                    If you find "fat" interfaces are problematic but you do now own them
+                    <ul>
+                        <li>Create smaller interfaces with just what you need</li>
+                        <li>Implement this interface using an adapter that implements the full interface</li>
+                    </ul>
+                </li>
+            </ul>
+        </p>
+        <p>
+            <ul>
+                <li>
+                    Don't force client code to depend upon things it doesn't need
+                </li>
+                <li>
+                    Keep interfaces lean and focused
+                </li>
+                <li>Refactor large interfaces so they inherit smaller interfaces</li>
+                <li>
+                    Related fundamentals
+                    <ul>
+                        <li>Polymorphism</li>
+                        <li>Inheritance</li>
+                        <li>LSP</li>
+                        <li>Facade pattern</li>
+                    </ul>
+                </li>
+            </ul>
+        </p>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Dependency Inversion Principle</div>
+    </div>
+    <div class="panel-body">
+        <p>
+            <ul>
+                <li>High level modules should not depend on low level modules. Both should depend on Abstractions</li>
+                <li>Abstractions should not depend on details. Details should depend on Abstractions</li>
+            </ul>
+        </p>
+        <p>
+            What are dependencies
+            <ul>
+                <li>Framework(.net etc)</li>
+                <li>Third party libraries</li>
+                <li>Database</li>
+                <li>File System</li>
+                <li>Email</li>
+                <li>Web Services</li>
+                <li>System resources(Clock)</li>
+                <li>Configuration</li>
+                <li>The new keyword</li>
+                <li>Static methods</li>
+                <li>Thread.Sleep</li>
+                <li>Random</li>
+            </ul>
+        </p>
+    </div>
+</div>
+

@@ -13,5 +13,10 @@ namespace Docs.Controllers
         {
             return View();
         }
+
+        public ActionResult Solid()
+        {
+            return View();
+        }
     }
 }

@@ -5,3 +5,33 @@
 
 <h2>Delegates</h2>
 
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Introduction</div>
+    </div>
+    <div class="panel-body">
+        Overview
+        <ul>
+            <li>Creating a Delegate</li>
+            <li>Defining an Event</li>
+            <li>Raising Events</li>
+            <li>Creating an EventArgs Class</li>
+        </ul>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div class="panel-title">Delegate</div>
+    </div>
+    <div class="panel-body">
+        <p>
+            Custom delegates are defined using the <code>delegate</code> keyword.
+@Html.DisplayCode(@"
+public delegate void WorkPerformedHandler(int hours, WorkType workType);
+", "c#")
+        </p>
+    </div>
+</div>
