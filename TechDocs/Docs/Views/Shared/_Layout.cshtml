@@ -3,11 +3,49 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <title>@ViewBag.Title - TechDocs</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
 </head>
 <body>
+    <div id="fb-root"></div>
+    <script>
+        (function (d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) return;
+            js = d.createElement(s); js.id = id;
+            js.src = "//connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v2.4&appId=118820868185843";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+    </script>
+    <script>
+        window.twttr = (function (d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0],
+              t = window.twttr || {};
+            if (d.getElementById(id)) return t;
+            js = d.createElement(s);
+            js.id = id;
+            js.src = "https://platform.twitter.com/widgets.js";
+            fjs.parentNode.insertBefore(js, fjs);
+
+            t._e = [];
+            t.ready = function (f) {
+                t._e.push(f);
+            };
+
+            return t;
+        }(document, "script", "twitter-wjs"));</script>
+    <script src="https://apis.google.com/js/platform.js" async defer>
+
+    </script>
+    <script>
+        jQuery(document).ready(function () {
+            jQuery('#shareFacebook').html('<div id="shareFacebook" class="fb-share-button" data-href="' + window.location.href + '" data-layout="button_count"></div>');
+            jQuery('#shareTwitter').html('<a class="twitter-share-button" href="https://twitter.com/intent/tweet?text=via%20%40singsuyash" data-counturl="' + window.location.href + '" target="_blank">Tweet</a>');
+            jQuery('#shareGooglePlus').html('<div class="g-plus" data-action="share" data-href="'+window.location.href+'" data-annotation="bubble"></div>');
+        });
+    </script>
     <div class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
@@ -20,19 +58,105 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
-                    <li>@Html.ActionLink("EF", "Relationships", "EF")</li>
-                    <li>@Html.ActionLink("About", "About", "Home")</li>
-                    <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">EF <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/EF/Relationships">Code First Fluent API Relationships</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">C# <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/CSharp/Generics">Generics</a></li>
+                            <li><a href="/CSharp/Collections">Collections</a></li>
+                            <li><a href="/CSharp/Delegates">Delegates</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Javascript <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/JS/GoodParts">Good Parts</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">OOPS <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/OOPS/Index">Introduction</a></li>
+                            <li><a href="/OOPS/SOLID">SOLID Principles</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Unit Testing <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/Test/MOQ">MOQ</a></li>
+                            <li><a href="/Test/UnitTesting">Unit Testing Introduction</a></li>
+                        </ul>
+                    </li>
                 </ul>
+                <div class="navbar-form navbar-right" role="search">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search">
+                    </div>
+                    <intput type="text" class="btn btn-default">Submit</intput>
+                </div>
             </div>
         </div>
     </div>
     <div class="container body-content">
-        @RenderBody()
+        <div class="row">
+            <div class="col-md-12">
+                @RenderBody()
+            </div>
+        </div>
         <hr />
         <footer>
-            <div>
+            <div class="row well">
+                <div class="col-md-2">
+                    <img class="img-responsive" src="~/Content/Images/Site/singsuyash.jpg" style="height:150px;" />
+                </div>
+                <div class="col-md-10">
+                    <br/>
+                    <ul class="nav nav-pills">
+                        <li>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Share Page&nbsp;<span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li id="shareFacebook"></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li id="shareTwitter"></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li id="shareGooglePlus"></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Contact&nbsp;<span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a href="https://www.facebook.com/singsuyash">Facebook</a></li>
+                                    <li><a href="https://twitter.com/singsuyash">Twitter</a></li>
+                                    <li><a href="https://plus.google.com/107821654628210072283/posts">Google+</a></li>
+                                    <li><a href="http://in.linkedin.com/in/singsuyash">LinkedIn</a></li>
+                                    <li>
+                                        <a href="http://stackoverflow.com/users/793784/singsuyash">
+                                            <img src="http://stackoverflow.com/users/flair/793784.png?theme=clean" width="208" height="58" alt="profile for singsuyash at Stack Overflow, Q&amp;A for professional and enthusiast programmers" title="profile for singsuyash at Stack Overflow, Q&amp;A for professional and enthusiast programmers">
+                                        </a>
+                                    </li>
+                                    <li><a href="mailto:singsuyash@gmail.com">Email</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li style="font-family:'Segoe UI'">
+                            Knowledge shared here are my personal notes. Sources for these docs are Pluralsight, Stackoverflow, Blogs of technical maesters, and my own Book Reading &amp; Research. Please comment at the bottom if you like my work, improvements, suggestions. More about me can be found at various social platforms provided in the "Contact" dropdown. Cheers folks!
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="row">
                 <div id="disqus_thread"></div>
                 <script type="text/javascript">
                     /* * * CONFIGURATION VARIABLES * * */
@@ -50,7 +174,7 @@
         </footer>
     </div>
 
-    @Scripts.Render("~/bundles/jquery")
+
     @Scripts.Render("~/bundles/bootstrap")
     @RenderSection("scripts", required: false)
 

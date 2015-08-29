@@ -24,6 +24,7 @@
     <SccLocalPath>SAK</SccLocalPath>
     <SccAuxPath>SAK</SccAuxPath>
     <SccProvider>SAK</SccProvider>
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -277,6 +278,13 @@
     <Content Include="Content\Images\Set\3.png" />
     <Content Include="Content\Images\Set\4.png" />
     <Content Include="Content\Images\Set\5.png" />
+    <Content Include="Content\Images\Site\email.png" />
+    <Content Include="Content\Images\Site\facebook.jpg" />
+    <Content Include="Content\Images\Site\googleplus.png" />
+    <Content Include="Content\Images\Site\linkedin.png" />
+    <Content Include="Content\Images\Site\singsuyash.jpg" />
+    <Content Include="Content\Images\Site\stackoverflow.svg" />
+    <Content Include="Content\Images\Site\twitter.png" />
     <Content Include="Content\Images\testing\1.png" />
     <Content Include="Content\Images\testing\10.png" />
     <Content Include="Content\Images\testing\11.png" />
@@ -344,8 +352,6 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Home\About.cshtml" />
-    <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
     <Content Include="Views\OOPS\Index.cshtml" />
